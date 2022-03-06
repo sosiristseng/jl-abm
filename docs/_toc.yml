@@ -2,7 +2,6 @@
 # Learn more at https://jupyterbook.org/customize/toc.html
 
 format: jb-book
-root: index
+root: abm-01
 chapters:
-  - file: markdown
-  - file: plots
+  - file: abm-02
