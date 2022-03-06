@@ -1,0 +1,40 @@
+name: Auto update Julia dependencies
+
+env:
+  JULIA_VERSION: "1.7"
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: "0 0 1 * *" # Every Month
+
+jobs:
+  update-notebook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Cache Julia
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.julia/artifacts
+            ~/.julia/compiled
+            ~/.julia/packages
+          key: ${{ runner.os }}-julia-${{ hashFiles('Project.toml') }}-${{ hashFiles('Manifest.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-julia-${{ hashFiles('Project.toml') }}-
+            ${{ runner.os }}-julia-
+      - name: Setup Julia ${{ env.JULIA_VERSION }}
+        uses: julia-actions/setup-julia@v1
+        with:
+          version: ${{ env.JULIA_VERSION }}
+      - name: Update Julia dependencies
+        run: julia --color=yes --threads=auto --project=@. -e 'import Pkg; Pkg.update()'
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          labels: |
+            automerge
