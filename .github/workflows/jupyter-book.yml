@@ -56,7 +56,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('Manifest.toml', 'requirements.txt') }}
       - name: Build website
-        run: jupyter-book build docs
+        run: jupyter-book build docs --warningiserror --keep-going
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3.8.0
         if: github.ref == 'refs/heads/main'
