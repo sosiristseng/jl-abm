@@ -1,42 +1,28 @@
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   JULIA_DEPOT_PATH: "${CI_PROJECT_DIR}/.julia"
+  N_JOBS: 4
 
 stages:
   - update
   - build
   - deploy
 
-cache:
-  - key:
-      files:
-        - Project.toml
-    paths:
-      - .julia/artifacts
-      - .julia/compiled
-      - .julia/packages
-  - key:
-      files:
-        - Manifest.toml
-        - requirements.txt
-    paths:
-      - docs/_build/.jupyter_cache
-  - key:
-      files:
-        - requirements.txt
-        - .github/requirements.txt
-    paths:
-      - .cache/pip
-
 # GitLab CI: Auto dependency updates https://thacoon.com/posts/gitlab-ci-auto-dependency-update/
 # `GIT_PUSH_TOKEN` CI/CD variable = personal access token (PAT) with write access
 auto-update:
-  image: julia:1.7
-  # tags:
-  #   - your_runner
+  image: registry.gitlab.com/sosiristseng/docker-juliabook:latest
+  tags:
+    - md705
   stage: update
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
+  cache:
+    - key: julia
+      paths:
+        - .julia/artifacts
+        - .julia/compiled
+        - .julia/packages
   script:
     - julia --color=yes --threads=auto --project=@. -e 'import Pkg; Pkg.update()'
     - |
@@ -62,20 +48,29 @@ auto-update:
       fi
 
 build-website:
-  image: julia:1.7
-  # tags:
-  #   - your_runner
+  image: registry.gitlab.com/sosiristseng/docker-juliabook:latest
+  tags:
+    - md705
   stage: build
   rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"
+  cache:
+    - key: julia
+      paths:
+        - .julia/artifacts
+        - .julia/compiled
+        - .julia/packages
+    - key:
+        files:
+          - Manifest.toml
+          # - requirements.txt
+      paths:
+      - docs/_build/.jupyter_cache
   script:
-    - apt update -qq && apt install python3 python3-wheel python3-pip git parallel -y
-    - pip install -r requirements.txt
-    - pip install -r .github/requirements.txt
-    - julia --color=yes --project=@. -e 'import Pkg; Pkg.instantiate(); Pkg.build("IJulia")'
-    # Uncomment if you want parallel execution
-    # - find docs -type f -name "*.ipynb" -print0 | parallel -0 -j2 jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 --ExecutePreprocessor.kernel_name=julia-${JL_MAJOR} --execute --inplace {}
-    - jupyter-book build docs
+   - julia --color=yes --threads=auto --project=@. -e 'import Pkg; Pkg.instantiate()'
+    # Enable for parallel builds
+    # - find docs -type f -name "*.ipynb" -print0 | parallel -0 -j${N_JOBS} jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 --ExecutePreprocessor.kernel_name=julia-${JL_MAJOR} --execute --inplace {}
+   - jupyter-book build docs
   artifacts:
     paths:
       - docs/_build/
