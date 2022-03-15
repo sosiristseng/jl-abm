@@ -162,3 +162,8 @@ docs/site/
 # environment.
 # Manifest.toml
 LocalPreferences.toml
+
+# generated file
+
+*.mp4
+*.jld2
