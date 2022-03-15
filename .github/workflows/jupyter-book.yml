@@ -28,7 +28,7 @@ jobs:
         uses: syphar/restore-pip-download-cache@v1
         if: steps.cache-virtualenv.outputs.cache-hit != 'true'
       - name: Install Python dependencies if cache miss
-        run: pip install -r requirements.txt -r .github/requirements.txt
+        run: pip install -r .github/requirements.txt
         if: steps.cache-virtualenv.outputs.cache-hit != 'true'
       - name: Setup Julia ${{ env.JULIA_VERSION }}
         uses: julia-actions/setup-julia@v1
@@ -50,12 +50,12 @@ jobs:
       - name: Cache Jupyter book outputs
         uses: actions/cache@v2
         env:
-          cache-name: "jb-01"
+          cache-name: "jb"
         with:
           path: ./docs/_build/.jupyter_cache/
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('Manifest.toml', 'requirements.txt') }}-${{ hashFiles('**/*.ipynb') }}
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('Manifest.toml') }}-${{ hashFiles('**/*.ipynb') }}
           restore-keys: |
-            ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('Manifest.toml', 'requirements.txt') }}
+            ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('Manifest.toml') }}
       - name: Install IJulia
         env:
           PYTHON: python
