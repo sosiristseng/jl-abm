@@ -4,7 +4,13 @@ env:
   JULIA_VERSION: "1.7"
   PYTHON_VERSION: "3.9"
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
