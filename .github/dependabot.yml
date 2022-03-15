@@ -7,14 +7,12 @@ updates:
       interval: "daily"
     labels:
       - "automerge"
-    open-pull-requests-limit: 0
   - package-ecosystem: "pip"
     directory: "/.github"
     schedule:
       interval: "daily"
     labels:
       - "automerge"
-    open-pull-requests-limit: 0
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -22,4 +20,3 @@ updates:
       interval: "daily"
     labels:
       - "automerge"
-    open-pull-requests-limit: 0
