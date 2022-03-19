@@ -15,8 +15,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Setup Julia ${{ env.JULIA_VERSION }}
         uses: julia-actions/setup-julia@v1
         with:
@@ -26,5 +24,6 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
+          token: ${{ secrets.PAT }}
           labels: |
             automerge
