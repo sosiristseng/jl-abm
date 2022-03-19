@@ -2,6 +2,7 @@ name: Auto update Julia dependencies
 
 env:
   JULIA_VERSION: "1.7"
+  JULIA_PKG_PRECOMPILE_AUTO: 0
 
 on:
   workflow_dispatch:
