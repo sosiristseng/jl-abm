@@ -86,15 +86,9 @@ build-docker:
       --tag $IMG
       -f docker/Dockerfile
       .
-    # main -> latest; others -> branch name
-    - |
-      if [[ $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH ]]; then
-        echo "Latest tag for the default branch"
-        docker tag $IMG $CI_REGISTRY_IMAGE:latest
-      else
-        echo "Branch tag for the others"
-        docker tag $IMG $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-      fi
+    # main -> latest
+    - $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && docker tag $IMG $CI_REGISTRY_IMAGE:latest
+    - docker tag $IMG $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
     - docker push --all-tags $CI_REGISTRY_IMAGE
 
 .push-docker:
@@ -119,11 +113,14 @@ push-tag-docker:
   variables:
     TAG: $CI_COMMIT_TAG
 
-.build-notebooks:
-  image: $CI_REGISTRY_IMAGE:latest
+build-notebooks:
+  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   # tags:
   #   - your_runner
   stage: build:notebooks
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
   cache:
     - key:
         files:
@@ -141,22 +138,18 @@ push-tag-docker:
       - docs/_build/
     expire_in: 1 day
 
-mr-notebooks:
-  extends: .build-notebooks
-  rules:
-    - if: $CI_MERGE_REQUEST_IID
-  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-
 pages:
-  extends: .build-notebooks
+  image: alpine:latest
+  stage: deploy
+  cache: []
+  variables:
+    GIT_STRATEGY: none
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"
   script:
-    # Uncomment if you want parallel notebook execution
-    # - find docs -type f -name "*.ipynb" -print0 | parallel -0 -j2 jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 --ExecutePreprocessor.kernel_name=julia-${JL_MAJOR} --execute --inplace {}
-    - jupyter-book build docs
+    - apk add --no-cache gzip brotli
     - mv docs/_build/html public
-    - find public -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\|svg\|xml\)$' -exec gzip -f -k {} \; -exec brotli -f -k {} \; || echo 'Compression failed. Skipping...'
+    - find public -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\|svg\|xml\)$' -exec gzip -f -k {} \; -exec  -f -k {} \; || echo 'Compression failed. Skipping...'
   artifacts:
     paths:
       - public
