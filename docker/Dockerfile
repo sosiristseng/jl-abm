@@ -1,6 +1,9 @@
-FROM python:3.10-slim
+FROM python:3.10.4-slim
 
 WORKDIR /usr/src/app
+
+# If you use PackageCompiler, you'll need compilers
+RUN apt-get update && apt-get install -y build-essential && rm -rf /var/lib/apt/lists/*
 
 # Julia
 ENV JULIA_PATH /usr/local/julia
@@ -17,9 +20,9 @@ RUN julia --threads=auto --color=yes -e 'import Pkg; Pkg.add("IJulia")' \
     && julia --threads=auto --color=yes --project=@. -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
 
 # Julia sysimage (optional)
-# RUN julia --threads=auto --color=yes -e 'import Pkg; Pkg.add("PackageCompiler"); \
-#     create_sysimage(["Example"]; project= ".", sysimage_path="sysimage.so"); \
-#     using IJulia; installkernel("Julia", "-J sysimage.so"); \
+# RUN julia --threads=auto --color=yes -e 'import Pkg; Pkg.add("PackageCompiler"); using PackageCompiler;\
+#     create_sysimage(["Example"]; project= ".", sysimage_path="$(pwd())/sysimage.so"); \
+#     using IJulia; installkernel("Julia", "--sysimage=$(pwd())/sysimage.so"); \
 #     Pkg.remove("PackageCompiler"); Pkg.gc()'
 
 # Julia command
