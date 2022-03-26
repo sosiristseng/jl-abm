@@ -48,7 +48,7 @@ build-docker:
   # Your runner
   tags:
     - md705
-  # Runner uses socket binding so dind is not needed
+  # We're using socket binding so dind is not needed
   # services:
   #   - docker:20.10-dind
   stage: build
@@ -70,6 +70,46 @@ build-docker:
       -f docker/Dockerfile
       .
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+
+build-jupyter:
+  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  # Your runner
+  tags:
+    - md705
+  stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE != "schedule"
+  cache:
+    - key:
+        files:
+          - Manifest.toml
+          - requirements.txt
+        prefix: jb
+      paths:
+        - docs/_build/
+  script:
+    - jb build docs
+  artifacts:
+    paths:
+      - docs/_build/
+    expire_in: 1 week
+
+pages:
+  image: alpine:latest
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"
+  dependencies:
+    - "build-jupyter"
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - apk add --no-cache gzip brotli
+    - mv docs/_build/html public
+    - find public -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\|svg\|xml\)$' -exec gzip -f -k {} \; -exec brotli -f -k {} \; || echo 'Compression failed. Skipping...'
+  artifacts:
+    paths:
+      - public
 
 # Default: main = latest
 push-docker:
@@ -94,38 +134,3 @@ push-tag-docker:
     - if: $CI_COMMIT_TAG
   variables:
     TAG: $CI_COMMIT_TAG
-
-build-notebooks:
-  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-  tags:
-    - md705
-  stage: test
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-  cache:
-    - key:
-        files:
-          - Manifest.toml
-          - requirements.txt
-        prefix: jb
-      paths:
-        - docs/_build/
-  script:
-    # Uncomment if you want parallel notebook execution
-    # - find docs -type f -name "*.ipynb" -print0 | parallel -0 -j2 jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 --ExecutePreprocessor.kernel_name=julia-1.7 --execute --inplace {}
-    - jupyter-book build docs
-  artifacts:
-    paths:
-      - docs/_build/
-
-pages:
-  extends: build-notebooks
-  rules:
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"
-  script:
-    - jupyter-book build docs
-    - mv docs/_build/html public
-    # - find public -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\|svg\|xml\)$' -exec gzip -f -k {} \; -exec  -f -k {} \; || echo 'Compression failed. Skipping...'
-  artifacts:
-    paths:
-      - public
