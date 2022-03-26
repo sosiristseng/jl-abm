@@ -48,8 +48,9 @@ build-docker:
   # Your runner
   tags:
     - md705
-  services:
-    - docker:20.10-dind
+  # Runner uses socket binding so dind is not needed
+  # services:
+  #   - docker:20.10-dind
   stage: build
   rules:
     - if: $CI_PIPELINE_SOURCE != "schedule"
