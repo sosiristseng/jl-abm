@@ -17,8 +17,9 @@ To use `Agents.jl`, we need to define:
 - The **model** to hold the `space`, the `agent`s, and other parameters (called `properties`)
 - The stepping function `step!()` to tell how the model evolve.
 
-## Could I do ABM from scratch?
+## Could I do ABM by myself?
 
+Yes, you can define the agents, rules and stepping functions from scratch, but it's more convenient (and perhaps more performant) to use a test package like `Agents.jl`.
 
 ## Resources
 
