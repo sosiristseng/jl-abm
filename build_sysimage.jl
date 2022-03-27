@@ -4,7 +4,7 @@ Pkg.add(["PackageCompiler", "IJulia"])
 
 using PackageCompiler
 PackageCompiler.create_sysimage(
-    ["Agents", "Plots", "CairoMakie"];
+    ["Agents", "CairoMakie"];
     project=".", sysimage_path="$(pwd())/sysimage.so")
 
 using IJulia
