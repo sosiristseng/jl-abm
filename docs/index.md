@@ -24,3 +24,8 @@ To use `Agents.jl`, we need to define:
 
 - [Documentation](https://juliadynamics.github.io/Agents.jl/stable/) of `Agents.jl`.
 - [sir-julia](https://github.com/epirecipes/sir-julia) : Various implementations of the classical SIR model in Julia.
+
+## Notebook execution status
+
+```{nb-exec-table}
+```
