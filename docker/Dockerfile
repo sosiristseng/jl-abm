@@ -15,7 +15,6 @@ RUN pip install --no-cache-dir -U pip wheel setuptools && pip install --no-cache
 
 # Build Julia environment
 COPY Project.toml Manifest.toml ./
-COPY src ./src
 RUN julia --threads=auto --color=yes --project=@. -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
 
 # Julia Jupyter kernel sysimage
