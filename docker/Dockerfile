@@ -23,4 +23,4 @@ RUN julia --threads=auto --color=yes --project=@. -e 'import Pkg; Pkg.instantiat
 # CMD ["julia"]
 
 # If using sysimage
-CMD ["julia", "--sysimage=v1.7-sys.so"]
+CMD ["julia", "--sysimage=/usr/src/app/sysimage.so"]

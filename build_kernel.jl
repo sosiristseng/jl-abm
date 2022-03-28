@@ -8,7 +8,7 @@ using PackageCompiler
 major = VERSION.major
 minor = VERSION.minor
 
-sysimage_path = joinpath(@__DIR__, "v$(major).$(minor)-sys.so")
+sysimage_path = joinpath(@__DIR__, "sysimage.so")
 
 @info "SysImage path: " sysimage_path
 
