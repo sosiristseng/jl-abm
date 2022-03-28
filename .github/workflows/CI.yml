@@ -73,7 +73,7 @@ jobs:
       - name: Cache Jupyter book outputs
         uses: actions/cache@v3
         env:
-          cache-name: "jb-01"
+          cache-name: "jb-02"
         with:
           path: docs/_build/
           key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('Manifest.toml', 'requirements.txt') }}-${{ hashFiles('docs/**') }}
