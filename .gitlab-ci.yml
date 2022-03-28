@@ -1,3 +1,92 @@
+# "merge_request" workflow (https://docs.gitlab.com/ee/ci/yaml/workflow.html)
 include:
-  - project: "sosiristseng/gitlab-templates"
-    file: "/julia-jupyterbook.gitlab-ci.yml"
+  - template: "Workflows/MergeRequest-Pipelines.gitlab-ci.yml"
+
+stages:
+  - build
+  - test
+  - deploy
+
+default:
+  image: registry.gitlab.com/sosiristseng/docker-juliabook:latest
+
+variables:
+  JULIA_DEPOT_PATH: "$CI_PROJECT_DIR/.julia"
+
+# GitLab CI: Auto dependency updates https://thacoon.com/posts/gitlab-ci-auto-dependency-update/
+# `GIT_PUSH_TOKEN` CI/CD variable = personal access token (PAT) with write access
+update-julia:
+  tags:
+    - md705
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  variables:
+    JULIA_PKG_PRECOMPILE_AUTO: 0
+  script:
+    - julia --color=yes --threads=auto --project=@. -e 'import Pkg; Pkg.update()'
+    # Open a MR when there is a update, requires GIT_PUSH_TOKEN` CI/CD variable = personal access token (PAT) with write access
+    - |
+      if [[ -n $(git status --porcelain) ]]; then
+        echo "Commiting updates"
+        NEW_BR=auto-update-$(date '+%Y-%m-%d-%H-%M-%S')
+        git config --global user.name "${GITLAB_USER_NAME}"
+        git config --global user.email "${GITLAB_USER_EMAIL}"
+        git checkout -b ${NEW_BR}
+        git add .
+        git commit -m "${NEW_BR}"
+        git push "https://${GITLAB_USER_NAME}:${GIT_PUSH_TOKEN}@${CI_REPOSITORY_URL#*@}" \
+            -o merge_request.create \
+            -o merge_request.target="${CI_DEFAULT_BRANCH}" \
+            -o merge_request.merge_when_pipeline_succeeds \
+            -o merge_request.remove_source_branch \
+            -o merge_request.title="${NEW_BR}" \
+            -o merge_request.label="automated update" \
+            -o merge_request.assign="${GITLAB_USER_NAME}"
+        exit;
+      else
+        echo "no change, nothing to commit"
+      fi
+
+build-notebooks:
+  tags:
+    - md705
+  stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  cache:
+    - key:
+        files:
+          - Manifest.toml
+          - requirements.txt
+        prefix: jb
+      paths:
+        - docs/_build/.jupyter_cache
+    - key:
+        files:
+          - Project.toml
+          - Manifest.toml
+        prefix: julia-1.7
+      paths:
+        - $CI_PROJECT_DIR/.julia/
+  before_script:
+    - julia --color=yes --threads=auto -e 'import Pkg; Pkg.add("IJulia"); Pkg.build("IJulia")'
+    - julia --color=yes --threads=auto --project=@. -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
+    - jb build docs --warningiserror --keep-going
+  script:
+    - echo "Test complete!"
+  artifacts:
+    paths:
+      - docs/_build/
+    expire_in: 1 week
+
+pages:
+  extends: build-notebooks
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"
+  script:
+    - mv docs/_build/html public
+    - find public -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\|svg\|xml\)$' -exec gzip -f -k {} \; -exec brotli -f -k {} \; || echo 'Compression failed. Skipping...'
+  artifacts:
+    paths:
+      - public
