@@ -6,3 +6,4 @@ root: index
 chapters:
   - file: abm-01
   - file: abm-02
+  - file: abm-03
