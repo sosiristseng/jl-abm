@@ -61,11 +61,7 @@ build-notebooks:
         prefix: jb
       paths:
         - docs/_build/.jupyter_cache
-    - key:
-        files:
-          - Project.toml
-          - Manifest.toml
-        prefix: julia-1.7
+    - key: julia-1.7
       paths:
         - $CI_PROJECT_DIR/.julia/
   before_script:
