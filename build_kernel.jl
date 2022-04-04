@@ -11,7 +11,7 @@ sysimage_path = joinpath(@__DIR__, "sysimage.so")
 
 # Do not include too many packages because memory on CI machines is limited
 PackageCompiler.create_sysimage(
-    ["Plots"];
+    ["Agents"];
     project=".",
     sysimage_path=sysimage_path,
     cpu_target=PackageCompiler.default_app_cpu_target()
