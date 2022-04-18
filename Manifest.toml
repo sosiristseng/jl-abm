@@ -454,9 +454,9 @@ version = "2018.0.3+2"
 
 [[deps.InteractiveDynamics]]
 deps = ["DataStructures", "Makie", "OSMMakie", "Observables", "Requires", "StatsBase", "Test"]
-git-tree-sha1 = "cf8f1c7e7778a9d2b39b9ee8ad91908dfc17666b"
+git-tree-sha1 = "c86dfe5ceed1f234fb16523f1016ca2e0fd95ce5"
 uuid = "ec714cd0-5f51-11eb-0b6e-452e7367ff84"
-version = "0.20.4"
+version = "0.21.0"
 
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
@@ -464,9 +464,9 @@ uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
 [[deps.Interpolations]]
 deps = ["AxisAlgorithms", "ChainRulesCore", "LinearAlgebra", "OffsetArrays", "Random", "Ratios", "Requires", "SharedArrays", "SparseArrays", "StaticArrays", "WoodburyMatrices"]
-git-tree-sha1 = "b15fc0a95c564ca2e0a7ae12c1f095ca848ceb31"
+git-tree-sha1 = "b7bc05649af456efc75d178846f47006c2c4c3c7"
 uuid = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
-version = "0.13.5"
+version = "0.13.6"
 
 [[deps.IntervalSets]]
 deps = ["Dates", "EllipsisNotation", "Statistics"]
