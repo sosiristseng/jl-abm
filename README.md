@@ -1,24 +1,19 @@
 # Jupyter book template for Julia Jupyter notebooks
 
-## Features
+## Jupyter Book
 
-- [Jupyter book](https://jupyterbook.org/index.html) builds `md` and `ipynb` files into a website.
-- GitHub actions and GitLab CI/CD build and publish the website whenever changes are committed.
-  - The notebook execution results are cached so you can push notebooks with output cell cleared and enjoy the results once the build action is completed.
-- Periodically updating Julia dependencies and make a PR if notebooks are executed successfully.
-  - For GitHub: you need a pair of SSH keys. (Public key: Deploy key; private key : `SSH_PRIVATE_KEY` actions secret)
-  - For GitLab: you need a `GIT_PUSH_TOKEN` [CI/CD variable](https://docs.gitlab.com/ee/ci/variables/index.html), which is a PAT with `write_repo` access.
+[Jupyter book](https://jupyterbook.org/index.html) builds a website from Markdown and Jupyter Notebook files.
 
-## Commands
+## CI/CD
 
-### Install Julia dependencies without updating
+GitHub actions and GitLab CI/CD are setup to build and publish the website whenever changes are committed.
 
-```bash
-julia --project=. --color=yes --threads=auto -e 'using Pkg; Pkg.instantiate()'
-```
+- Execution results are executed on the fly so you can push notebooks with empty output cells and received the results once the pipeline is completed.
+- Execution results are cached so only the edited notebooks would be executed to save CI time.
 
-### Update Julia dependencies
+## Auto update
 
-```bash
-julia --project=. --color=yes --threads=auto -e 'using Pkg; Pkg.update()'
-```
+Periodically updating Julia dependencies and make a PR if notebooks are executed successfully.
+
+- For GitHub: [See the instructions](https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs) in `create pull request` action about how to trigger further CI workflows.
+- For GitLab: you need a `GIT_PUSH_TOKEN` [CI/CD variable](https://docs.gitlab.com/ee/ci/variables/index.html), which is a PAT with `write_repo` access.
