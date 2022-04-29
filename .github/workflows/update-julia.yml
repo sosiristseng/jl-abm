@@ -8,7 +8,7 @@ env:
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 1 * * *" # Every day
+    - cron: "0 0 * * 1" # Every week
 
 jobs:
   update-notebook:
@@ -21,7 +21,7 @@ jobs:
         with:
           version: ${{ env.JULIA_VERSION }}
       - name: Update Julia dependencies
-        run: julia --color=yes --threads=auto --project=@. -e 'import Pkg; Pkg.update()'
+        run: julia --color=yes --project=@. -e 'import Pkg; Pkg.update()'
       - uses: tibdex/github-app-token@v1
         id: generate-token
         with:
@@ -31,6 +31,7 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v4
         with:
+          # PAT with repo access
           token: ${{ steps.generate-token.outputs.token }}
           labels: |
             automerge
