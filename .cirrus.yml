@@ -1,0 +1,4 @@
+jupyter_book_task:
+  container:
+    dockerfile: docker/Dockerfile
+  build_script: jupyter-book build docs -v
