@@ -1,4 +1,11 @@
 jupyter_book_task:
   container:
-    dockerfile: docker/Dockerfile
+    dockerfile: .ci/Dockerfile
+  env:
+    GH_TOKEN: ENCRYPTED[!9738f4c1a354d06a1b834e0d8091dff4680f957e2130dfddb2fe725fbbbe2ed85aabee581dc8be7ac98b16bf83f67f46!]
   build_script: jupyter-book build docs -v
+  pages_script: |
+    if [[ $CIRRUS_BRANCH == "main" ]]; then
+      ghp-import -n docs/_build/html
+      git push -fq https://${GH_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git gh-pages
+    fi
