@@ -13,7 +13,7 @@ COPY --from=julia:1.7.2 ${JULIA_PATH} /usr/local/
 
 # Python deps (jupyter-book and matplotlib)
 COPY requirements.txt .
-COPY .ci ./.ci
+COPY .ci/requirements.txt .ci/requirements.txt
 RUN pip install --no-cache-dir -U pip wheel setuptools \
     && pip install --no-cache-dir -r .ci/requirements.txt -r requirements.txt
 
