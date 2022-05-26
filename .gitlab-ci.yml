@@ -87,7 +87,7 @@ pages:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE == "push"
   script:
     - mv docs/_build/html public
-    - find public -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\|svg\|xml\)$' -exec gzip -f -k {} \; -exec  -f -k {} \; || echo 'Compression failed. Skipping...'
+    - find public -type f -regex '.*\.\(htm\|html\|txt\|text\|js\|css\|svg\|xml\)$' -exec gzip -f -k {} \; -exec brotli -f -k {} \; || echo 'Compression failed. Skipping...'
   artifacts:
     paths:
       - public
