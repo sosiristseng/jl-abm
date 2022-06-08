@@ -4,6 +4,7 @@ CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
+IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
 InteractiveDynamics = "ec714cd0-5f51-11eb-0b6e-452e7367ff84"
 
 [compat]
