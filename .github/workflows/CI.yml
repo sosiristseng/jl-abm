@@ -62,7 +62,7 @@ jobs:
       # Jupyter Book part
       - name: Build Jupyter Books
         run: |
-          find docs -type f -name "*.ipynb" -print0 | parallel -0 -j2 jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 --execute --inplace {}
+          find docs -type f -name "*.ipynb" -print0 | parallel -0 -j2 jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 --execute --allow-errors --inplace {}
           jb build docs --warningiserror --keep-going -v
 
       - name: Deploy Website
