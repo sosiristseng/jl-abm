@@ -4,7 +4,7 @@
 format: jb-book
 root: index
 chapters:
-  - file: abm-01
-  - file: abm-02
-  - file: abm-03
-  - file: abm-04
+  - file: 01-schelling
+  - file: 02-graph-sars2
+  - file: 03-flocking
+  - file: 04-social-distancing

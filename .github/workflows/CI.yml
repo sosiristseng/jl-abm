@@ -44,10 +44,10 @@ jobs:
       matrix:
         notebook:
           - index
-          - abm-01
-          - abm-02
-          - abm-03
-          - abm-04
+          - 01-schelling
+          - 02-graph-sars2
+          - 03-flocking
+          - 04-social-distancing
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
