@@ -48,6 +48,7 @@ jobs:
           - 02-graph-sars2
           - 03-flocking
           - 04-social-distancing
+          - 05-zombie
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
