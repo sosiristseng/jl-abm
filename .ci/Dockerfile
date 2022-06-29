@@ -1,4 +1,4 @@
-FROM ghcr.io/sosiristseng/docker-juliabook:1.7.3.4
+FROM ghcr.io/sosiristseng/docker-juliabook:1.7.3.6
 
 ENV LC_ALL C.UTF-8
 
@@ -9,12 +9,9 @@ WORKDIR /usr/src/app
 # RUN pip install --no-cache-dir -r requirements.txt
 
 # Build Julia environment
-COPY Project.toml Manifest.toml setup.jl ./
+COPY Project.toml Manifest.toml ./
 # COPY src/ src
-RUN julia --threads=auto --color=yes --project=@. setup.jl
+RUN julia --threads=auto --color=yes --project=@. -e 'import Pkg; Pkg.instantiate()'
 
 # Julia command
-CMD ["julia"]
-
-# If using sysimage
-# CMD ["julia", "-Jsysimage.so"]
+CMD ["jupyter-book"]
