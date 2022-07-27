@@ -43,15 +43,11 @@ jobs:
       matrix:
         notebook:
           - index
-          - hw-01
-          - intro-01-first-steps
-          - intro-02-plotting
-          - intro-03-diffeq
-          - intro-04-gillespie
-          - mmsb-ch01
-          - mmsb-ch02
-          - mmsb-ch03
-          - mmsb-ch04
+          - 01-schelling
+          - 02-graph-sars2
+          - 03-flocking
+          # - 04-social-distancing
+          - 05-zombie
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
