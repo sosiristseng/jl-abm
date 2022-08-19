@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -U pip wheel setuptools \
 # Julia
 ENV JULIA_PATH /usr/local/julia/
 ENV PATH $JULIA_PATH/bin:$PATH
-COPY --from=julia:1.7.3 ${JULIA_PATH} /usr/local/
+COPY --from=julia:1.8.0 ${JULIA_PATH} /usr/local/
 
 # Julia environment
 COPY Project.toml Manifest.toml ./
