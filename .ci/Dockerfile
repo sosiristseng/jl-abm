@@ -6,17 +6,17 @@ ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
 # system deps
-# RUN apt-get update && apt-get install -y git gzip brotli parallel --no-install-recommends && rm -rf /var/lib/apt/lists/*
-
-# Python dependencies
-COPY .ci/requirements.txt .
-RUN pip install --no-cache-dir -U pip wheel setuptools \
-    && pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y git parallel --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 # Julia
 ENV JULIA_PATH /usr/local/julia/
 ENV PATH $JULIA_PATH/bin:$PATH
 COPY --from=julia:1.8.0 ${JULIA_PATH} /usr/local/
+
+# Python dependencies
+COPY .ci/requirements.txt .
+RUN pip install --no-cache-dir -U pip wheel setuptools \
+    && pip install --no-cache-dir -r requirements.txt
 
 # Julia environment
 COPY Project.toml Manifest.toml ./
