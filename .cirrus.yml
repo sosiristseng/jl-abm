@@ -1,7 +1,6 @@
 jupyter_book_task:
   environment:
     GH_TOKEN: ENCRYPTED[!bbf36430e8ba7b6a1dc3ada56ab696fbc35cb89d1d9efd3ce370d1fbc101b670c79fe815b9972d66a9d2993ed7f449eb!]
-    JULIA_NUM_THREADS: 4
   auto_cancellation: true
   container:
     dockerfile: .ci/Dockerfile
@@ -9,7 +8,7 @@ jupyter_book_task:
     memory: 16G
     use_in_memory_disk: true
   notebook_script: |
-    find . -type f -name "*.ipynb" -print0 | parallel -0 -j4 jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 --execute --inplace {}
+    parallel -j4 jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 --execute --inplace {} ::: docs/*.ipynb
   website_script: |
     jupyter-book build --keep-going -v docs/
   pages_script: |
