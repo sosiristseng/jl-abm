@@ -7,15 +7,16 @@ on:
 
 env:
   JULIA_VER: '1.8'
-  JULIA_NUM_THREADS: '2'
   JULIA_PKG_PRECOMPILE_AUTO: '0'
 
 jobs:
   update-notebook:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: julia-actions/setup-julia@v1
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Julia ${{ env.JULIA_VER }}
+        uses: julia-actions/setup-julia@v1
         with:
           version: ${{ env.JULIA_VER }}
       - name: Update Julia dependencies

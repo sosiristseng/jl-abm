@@ -1,0 +1,80 @@
+name: Build Jupyter Notebooks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JULIA_NUM_THREADS: 2
+  PYTHON_VER: '3.10'
+  JULIA_VER: '1.8'
+  JULIA_CACHE: '1'
+
+jobs:
+  jupyter-book:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup Python ${{ env.PYTHON_VER }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VER }}
+          cache: 'pip'
+          cache-dependency-path: '**/requirements.txt'
+      - name: Install Python dependencies
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f .ci/requirements.txt ]; then pip install -r .ci/requirements.txt; fi
+      - name: Setup Julia ${{ env.JULIA_VER }}
+        uses: julia-actions/setup-julia@v1
+        with:
+          version: ${{ env.JULIA_VER }}
+      - name: Cache Julia deps
+        uses: actions/cache@v3
+        with:
+          path: ~/.julia
+          key: ${{ runner.os }}-julia-${{ env.JULIA_CACHE }}-${{ hashFiles('**/Manifest.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-julia-${{ env.JULIA_CACHE }}-
+      - name: Install Julia deps
+        run: |
+          julia --color=yes --project="" -e 'import Pkg; Pkg.add("IJulia"); Pkg.build("IJulia")'
+          julia --color=yes --project=@. -e 'import Pkg; Pkg.instantiate()'
+      - name: Cache jupyter book outputs
+        uses: actions/cache@v3
+        with:
+          path: docs/_build/.jupyter_cache/
+          key: ${{ runner.os }}-jb-${{ hashFiles('**/Manifest.toml', '**/requirements.txt') }}
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v2
+      - name: Build website
+        run: jb build docs/ -v
+      - name: Upload page artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: docs/_build/html
+
+  # Deployment job
+  deploy:
+    needs: jupyter-book
+    if: github.ref == 'refs/heads/main'
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
