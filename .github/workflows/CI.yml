@@ -22,6 +22,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Install system packages
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -qqy parallel
       - name: Setup Python ${{ env.PYTHON_VER }}
         uses: actions/setup-python@v4
         with:
@@ -47,16 +51,14 @@ jobs:
         run: |
           julia --color=yes --project="" -e 'import Pkg; Pkg.add("IJulia"); Pkg.build("IJulia")'
           julia --color=yes --project=@. -e 'import Pkg; Pkg.instantiate()'
-      - name: Cache jupyter book outputs
-        uses: actions/cache@v3
-        with:
-          path: docs/_build/.jupyter_cache/
-          key: ${{ runner.os }}-jb-${{ hashFiles('**/Manifest.toml', '**/requirements.txt') }}
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v2
+      - name: Run Notebooks
+        run: |
+          parallel -j2 jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 --execute --inplace {} ::: docs/*.ipynb
       - name: Build website
-        run: jb build docs/ -v -W
+        run: jupyter-book build docs --warningiserror --keep-going -v
       - name: Upload page artifact
         uses: actions/upload-pages-artifact@v1
         with:
