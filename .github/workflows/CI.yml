@@ -49,8 +49,8 @@ jobs:
             ${{ runner.os }}-julia-${{ env.JULIA_CACHE }}-
       - name: Install Julia deps
         run: |
-          julia --color=yes --project="" -e 'import Pkg; Pkg.add("IJulia"); Pkg.build("IJulia")'
           julia --color=yes --project=@. -e 'import Pkg; Pkg.instantiate()'
+          julia --color=yes --project="" -e 'import Pkg; Pkg.add("IJulia"); Pkg.build("IJulia")'
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v2

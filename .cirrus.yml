@@ -13,7 +13,7 @@ jupyter_book_task:
   pip_cache:
     folder: ~/.cache/pip
     fingerprint_script: echo $PYTHON_VERSION && cat .ci/requirements.txt
-  python_pakcages_script: |
+  python_packages_script: |
     pip install -r .ci/requirements.txt
   install_julia_script: |
     wget https://raw.githubusercontent.com/abelsiqueira/jill/main/jill.sh
@@ -22,9 +22,9 @@ jupyter_book_task:
   jupkg_cache:
     folder: ~/.julia
     fingerprint_script: cat Manifest.toml
-  julia_pakcages_script: |
-    julia --color=yes --project="" -e 'import Pkg; Pkg.add("IJulia"); Pkg.build("IJulia")'
+  julia_packages_script: |
     julia --color=yes --project=@. -e 'import Pkg; Pkg.instantiate()'
+    julia --color=yes --project="" -e 'import Pkg; Pkg.add("IJulia"); Pkg.build("IJulia")'
   notebook_script: |
     parallel -j4 jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 --execute --inplace {} ::: docs/*.ipynb
   build_script: |
