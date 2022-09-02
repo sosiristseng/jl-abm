@@ -56,7 +56,7 @@ jobs:
         id: pages
         uses: actions/configure-pages@v2
       - name: Build website
-        run: jb build docs/ -v -W
+        run: jb build docs/ -v
       - name: Upload page artifact
         uses: actions/upload-pages-artifact@v1
         with:
