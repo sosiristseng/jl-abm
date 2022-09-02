@@ -1,12 +1,12 @@
 jupyter_book_task:
   env:
     JULIA_VER: "1.8.0"
-    JULIA_NUM_THREADS: "2"
+    JULIA_NUM_THREADS: "4"
   auto_cancellation: true
   container:
     image: python:3.10-slim
-    cpu: 2
-    memory: 8G
+    cpu: 4
+    memory: 16G
     use_in_memory_disk: true
   syspkg_script: apt-get update -q && apt-get install -qqy git parallel wget
   pip_cache:
@@ -25,7 +25,7 @@ jupyter_book_task:
     julia --color=yes --project="" -e 'import Pkg; Pkg.add("IJulia"); Pkg.build("IJulia")'
     julia --color=yes --project=@. -e 'import Pkg; Pkg.instantiate()'
   notebook_script: |
-    parallel -j2 jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 --execute --inplace {} ::: docs/*.ipynb
+    parallel -j4 jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 --execute --inplace {} ::: docs/*.ipynb
   build_script: |
     jupyter-book build docs --warningiserror --keep-going -v
 
