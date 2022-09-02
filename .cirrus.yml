@@ -23,8 +23,7 @@ jupyter_book_task:
     folder: ~/.julia
     fingerprint_script: cat Manifest.toml
   julia_packages_script: |
-    julia --color=yes --project=@. -e 'import Pkg; Pkg.instantiate()'
-    julia --color=yes --project="" -e 'import Pkg; Pkg.add("IJulia"); Pkg.build("IJulia")'
+    julia --color=yes --project=@. -e 'import Pkg; Pkg.instantiate(); Pkg.build("IJulia")'
   notebook_script: |
     parallel -j4 jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=600 --execute --inplace {} ::: docs/*.ipynb
   build_script: |
