@@ -3,9 +3,4 @@
 
 format: jb-book
 root: index
-chapters:
-  - file: 01-schelling
-  - file: 02-graph-sars2
-  - file: 03-flocking
-  - file: 04-social-distancing
-  - file: 05-zombie
+
