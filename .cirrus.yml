@@ -2,6 +2,7 @@ jupyter_book_task:
   env:
     JULIA_VER: "1.8.0"
     JULIA_NUM_THREADS: "4"
+    LC_ALL: "C"
   auto_cancellation: true
   container:
     image: python:3.10-slim
