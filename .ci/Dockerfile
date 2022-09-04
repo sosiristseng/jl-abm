@@ -15,13 +15,12 @@ COPY --from=julia:1.8.0 ${JULIA_PATH} /usr/local/
 
 # Python dependencies
 COPY .ci/requirements.txt .
-RUN pip install --no-cache-dir -U pip wheel setuptools \
-    && pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -U pip && pip install --no-cache-dir -r requirements.txt
 
 # Julia environment
 COPY Project.toml Manifest.toml ./
 # COPY src/ src # If you have this
 RUN julia --threads=auto --color=yes --project="" -e 'import Pkg; Pkg.add("IJulia"); Pkg.build("IJulia")' \
-&& julia --threads=auto --color=yes --project=@. -e 'import Pkg; Pkg.instantiate()'
+&&  julia --threads=auto --color=yes --project=@. -e 'import Pkg; Pkg.instantiate()'
 
 CMD ["jupyter-book"]
