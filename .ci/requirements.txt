@@ -1,1 +1,1 @@
-nbviewer==7.0.0
+nbconvert==7.0.0
