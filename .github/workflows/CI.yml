@@ -75,6 +75,9 @@ jobs:
   jupyter-book:
     needs: execute
     runs-on: ubuntu-latest
+    # store success output flag for ci job
+    outputs:
+      success: ${{ steps.setoutput.outputs.success }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -127,7 +130,7 @@ jobs:
           fi
 
   docker-push:
-    needs: [execute, docker]
+    needs: [docker, execute]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
