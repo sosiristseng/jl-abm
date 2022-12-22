@@ -28,9 +28,10 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VER }}
           cache: 'pip'
+          cache-dependency-path: '**/requirements.txt'
       - name: Install Python dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r .github/requirements.txt
       - name: Setup Julia ${{ env.JULIA_VER }}
         uses: julia-actions/setup-julia@v1
         with:
