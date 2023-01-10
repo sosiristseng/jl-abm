@@ -11,7 +11,7 @@ on:
       - '.github/workflows/**'
 
 jobs:
-  update-notebook:
+  update-julia-deps:
     runs-on: ubuntu-latest
     container:
       image: julia:1.8.4
