@@ -1,0 +1,29 @@
+name: Build Binder Container
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  binder:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+    - name: Remove binder folder if present
+      run: rm -rf .binder/ || true
+    - name: update jupyter dependencies with repo2docker
+      uses: jupyterhub/repo2docker-action@master
+      with:
+        DOCKER_REGISTRY: ghcr.io
+        IMAGE_NAME: ${{ github.repository }}
+        DOCKER_USERNAME: ${{ github.repository_owner }}
+        DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        ADDITIONAL_TAG: binder
+        LATEST_TAG_OFF: true
+        PUBLIC_REGISTRY_CHECK: true
