@@ -92,6 +92,7 @@ jobs:
         run: echo "success=true" >> $GITHUB_OUTPUT
       - name: Upload page artifact
         uses: actions/upload-pages-artifact@v1
+        if: github.ref == 'refs/heads/main'
         with:
           path: docs/_build/html
 
