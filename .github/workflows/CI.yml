@@ -90,9 +90,6 @@ jobs:
       - name: Set output flag
         id: setoutput
         run: echo "success=true" >> $GITHUB_OUTPUT
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v2
       - name: Upload page artifact
         uses: actions/upload-pages-artifact@v1
         with:
