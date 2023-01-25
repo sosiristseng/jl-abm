@@ -56,16 +56,16 @@ jobs:
           cache-from: type=gha
       - name: Execute Notebook
         run: >
-          docker run
+          docker run --rm
+          --workdir="/work"
           -v ${{ github.workspace }}:/work
-          -e JULIA_NUM_THREADS=auto
           ${{ env.IMAGE_NAME }}:test
           jupyter nbconvert --to notebook --ExecutePreprocessor.timeout=${{ env.TIMEOUT }} --execute --inplace
-          /work/docs/${{ matrix.notebook }}.ipynb
+          docs/${{ matrix.notebook }}.ipynb
       - name: Upload Notebook
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.notebook }}
+          name: notebook
           path: docs/${{ matrix.notebook }}.ipynb
 
   jupyter-book:
@@ -99,7 +99,7 @@ jobs:
   # This job is for GitHub status check
   # https://brunoscheufler.com/blog/2022-04-09-the-required-github-status-check-that-wasnt
   ci:
-    needs: [execute, jupyter-book]
+    needs: jupyter-book
     runs-on: ubuntu-latest
     if: always() # always run, so we never skip the check
     steps:
