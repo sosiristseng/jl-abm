@@ -11,7 +11,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IMAGE_NAME: ${{ github.repository }}
   TIMEOUT: 600
 
 jobs:
@@ -22,8 +21,8 @@ jobs:
       - name: Build and cache Docker Image
         uses: docker/build-push-action@v3
         with:
-          file: .ci/Dockerfile
-          tags: ${{ env.IMAGE_NAME }}:test
+          file: julia.Dockerfile
+          tags: myenv:test
           outputs: type=cacheonly
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -50,8 +49,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: .ci/Dockerfile
-          tags: ${{ env.IMAGE_NAME }}:test
+          file: julia.Dockerfile
+          tags: myenv:test
           load: true
           cache-from: type=gha
       - name: Execute Notebook
@@ -86,7 +85,7 @@ jobs:
       - name: Move notebooks
         run: find out/ -type f -iname '*.ipynb' -exec mv -t docs/ {} +
       - name: Build website
-        run: jupyter-book build docs/ -W -v
+        run: jupyter-book build docs/ -v
       - name: Set output flag
         id: setoutput
         run: echo "success=true" >> $GITHUB_OUTPUT

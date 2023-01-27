@@ -12,7 +12,6 @@ on:
 
 env:
   JULIA_PKG_PRECOMPILE_AUTO: '0'
-  JULIA_NUM_THREADS: 'auto'
 
 jobs:
   update-manifest:
@@ -24,19 +23,18 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: .ci/Dockerfile
-          tags: julia:current
+          file: julia.Dockerfile
+          tags: myenv:current
           load: true
           target: base
       - name: Update Julia dependencies
         run: >
           docker run --rm
-          --workdir="/work"
-          -v ${{ github.workspace }}:/work
+          --workdir=/tmp
+          -v ${{ github.workspace }}:/tmp
           -e JULIA_PKG_PRECOMPILE_AUTO
-          -e JULIA_NUM_THREADS
-          julia:current
-          julia --color=yes --project=@. -e "import Pkg; Pkg.update()"
+          myenv:current
+          julia --color=yes --threaads=auto --project=@. -e "import Pkg; Pkg.update()"
       # Authenticate with a custom GitHub APP
       # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#authenticating-with-github-app-generated-tokens
       - name: Generate token
