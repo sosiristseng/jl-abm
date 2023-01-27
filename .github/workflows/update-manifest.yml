@@ -34,7 +34,7 @@ jobs:
           -v ${{ github.workspace }}:/tmp
           -e JULIA_PKG_PRECOMPILE_AUTO
           myenv:current
-          julia --color=yes --threaads=auto --project=@. -e "import Pkg; Pkg.update()"
+          julia --color=yes --threads=auto --project=@. -e "import Pkg; Pkg.update()"
       # Authenticate with a custom GitHub APP
       # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#authenticating-with-github-app-generated-tokens
       - name: Generate token
