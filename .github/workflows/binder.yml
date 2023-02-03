@@ -9,11 +9,17 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  packages: write
+  contents: write
+  pull-requests: write
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}:binder
+
 jobs:
   binder:
     runs-on: ubuntu-latest
-    env:
-      IMAGE_NAME: ghcr.io/${{ github.repository }}:binder
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
