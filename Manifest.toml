@@ -240,9 +240,9 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[deps.Distributions]]
 deps = ["ChainRulesCore", "DensityInterface", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SparseArrays", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns", "Test"]
-git-tree-sha1 = "9a782b47da6ee4cb3d041764e0c6830469105984"
+git-tree-sha1 = "d71264a7b9a95dca3b8fff4477d94a837346c545"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.25.83"
+version = "0.25.84"
 
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
@@ -517,9 +517,9 @@ version = "2018.0.3+2"
 
 [[deps.InteractiveDynamics]]
 deps = ["DataStructures", "GraphMakie", "Makie", "OSMMakie", "Observables", "Requires", "StatsBase", "Test"]
-git-tree-sha1 = "74055dcf8f9d0dff626de8f0fe573dd99eea8e30"
+git-tree-sha1 = "d0cc017062386bbb0df000ef419c64c33cd6ccb2"
 uuid = "ec714cd0-5f51-11eb-0b6e-452e7367ff84"
-version = "0.22.0"
+version = "0.22.1"
 
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
@@ -549,9 +549,9 @@ uuid = "41ab1584-1d38-5bbf-9106-f11c6c58b48f"
 version = "1.2.0"
 
 [[deps.IrrationalConstants]]
-git-tree-sha1 = "3868cac300a188a7c3a74f9abd930e52ce1a7a51"
+git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
-version = "0.2.1"
+version = "0.2.2"
 
 [[deps.Isoband]]
 deps = ["isoband_jll"]
