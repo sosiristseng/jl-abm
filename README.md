@@ -1,1 +1,1 @@
-# Julia agent-based modeling (ABM) examples
+# Agent-based modeling
