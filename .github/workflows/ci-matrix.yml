@@ -14,7 +14,7 @@ env:
   TIMEOUT: 600
   DFILE: '.github/Dockerfile'
   IMAGE_NAME: 'app:test'
-  PYTHON_VER: '3.11'
+  PY_VER: '3.11'
 
 jobs:
   setup:
@@ -78,7 +78,6 @@ jobs:
   jupyter-book:
     needs: execute
     runs-on: ubuntu-latest
-    container: ghcr.io/sosiristseng/docker-jupyterbook:0.15.1
     # store success output flag for the ci job
     outputs:
       success: ${{ steps.setoutput.outputs.success }}
@@ -95,6 +94,12 @@ jobs:
         working-directory: out
       - name: Move notebooks
         run: find out/ -type f -iname '*.ipynb' -exec mv -t docs/ {} +
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PY_VER }}
+      - name: Install Jupyter book
+        run: pip install jupyter-book
       - name: Build website
         run: jupyter-book build docs/
       - name: Upload pages artifact
@@ -142,4 +147,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v1
