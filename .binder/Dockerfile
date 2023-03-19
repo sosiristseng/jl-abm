@@ -1,1 +1,1 @@
-FROM ghcr.io/sosiristseng/jl-abm:binder
+FROM ghcr.io/ww-jl/abm:binder
