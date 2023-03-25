@@ -16,7 +16,7 @@ nbs = (
     "02-graph-sars2.jl",
     "03-flocking.jl",
     "04-social-distancing.jl",
-    "05-zombie.jl",
+    "05-zombie.jl"
 )
 
 ts = pmap(nbs; on_error=identity) do nb
