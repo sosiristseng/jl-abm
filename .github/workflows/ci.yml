@@ -16,13 +16,13 @@ permissions:
   pull-requests: write
 
 env:
+  NPROC: '2'
   JULIA_DEPOT_PATH: '~/.julia'
   JULIA_NUM_THREADS: 'auto'
   JULIA_CACHE: '1'
-  PY_VER: '3.11'
+  PYTHON_VER: '3.11'
   GKSwstype: 100
   IMAGE_NAME: ghcr.io/${{ github.repository }}:binder
-  OUTPUT_BRANCH: out
 
 jobs:
   jupyter-book:
@@ -30,27 +30,24 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Setup Python ${{ env.PY_VER }}
+      - name: Setup Python ${{ env.PYTHON_VER }}
         uses: actions/setup-python@v4
         id: python
         with:
-          python-version: ${{ env.PY_VER }}
+          python-version: ${{ env.PYTHON_VER }}
+          cache: 'pip'
       - name: Install Python dependencies
-        run: |
-          pip install -U jupyter-book
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
       - name: Read Julia version
         uses: SebRollen/toml-action@v1.0.2
         id: read_toml
         with:
           file: 'Manifest.toml'
           field: 'julia_version'
-      - name: Save Julia version
-        run: echo "JL_VER=${{ steps.read_toml.outputs.value }}" >> $GITHUB_ENV
-      - name: Setup Julia ${{ env.JL_VER }}
+      - name: Setup Julia
         uses: julia-actions/setup-julia@v1
         with:
-          version: ${{ env.JL_VER }}
+          version: ${{ steps.read_toml.outputs.value }}
       - name: Cache Julia dependencies
         uses: actions/cache@v3
         if: ${{ env.JULIA_CACHE != '0'}}
@@ -66,7 +63,7 @@ jobs:
           julia --color=yes --project=@. -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
           julia --color=yes --project="" -e 'import Pkg; Pkg.add("Literate")'
       - name: Build notebooks
-        run: julia --color=yes --project=@. literate.jl
+        run: julia --color=yes -p ${{ env.NPROC }} literate.jl
       - name: Deploy Notebooks
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: peaceiris/actions-gh-pages@v3
@@ -76,7 +73,7 @@ jobs:
           publish_branch: out
           force_orphan: true
       - name: Build website
-        run: jupyter-book build docs/
+        run: pipx run jupyter-book build docs/
       - name: Upload pages artifact
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: actions/upload-pages-artifact@v1
@@ -101,23 +98,23 @@ jobs:
         uses: actions/deploy-pages@v2
 
   binder:
-    runs-on: ubuntu-latest
     needs: jupyter-book
     if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v3
       with:
-        ref: ${{ env.OUTPUT_BRANCH }}
-    - name: Remove binder folder if present
-      run: rm -rf .binder/ || true
-    - name: Setup Python ${{ env.PY_VER }}
+        ref: out
+    - name: Setup Python ${{ env.PYTHON_VER }}
       uses: actions/setup-python@v4
       id: python
       with:
-        python-version: ${{ env.PY_VER }}
+        python-version: ${{ env.PYTHON_VER }}
     - name: Install repo2docker
-      run: python3 -m pip install https://github.com/jupyterhub/repo2docker/archive/main.zip
+      run: |
+        python -m pip install -U pip setuptools wheel
+        pip install https://github.com/jupyterhub/repo2docker/archive/main.zip
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v2
       with:
@@ -128,8 +125,7 @@ jobs:
       run: docker pull ${{ env.IMAGE_NAME }} || true
     - name: Build binder image with repo2docker
       run: >
-        jupyter-repo2docker
-        --ref ${{ env.OUTPUT_BRANCH }}
+        jupyter-repo2docker --ref out
         --image-name ${{ env.IMAGE_NAME }}
         --cache-from ${{ env.IMAGE_NAME }}
         --push --no-run --user-id 1000 --user-name jovyan
