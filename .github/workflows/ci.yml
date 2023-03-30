@@ -17,52 +17,42 @@ permissions:
 
 env:
   NPROC: '2'
-  JULIA_DEPOT_PATH: '~/.julia'
-  JULIA_NUM_THREADS: 'auto'
-  JULIA_CACHE: '1'
-  PYTHON_VER: '3.11'
+  JULIA_CACHE: '2'
 
 jobs:
-  jupyter-book:
+  literate:
     runs-on: ubuntu-latest
+    container:
+      image: julia:1.8.5
+      volumes:
+        - /srv/juliapkgs
+      env:
+        JULIA_DEPOT_PATH: /srv/juliapkgs
+        JULIA_NUM_THREADS: auto
+
     steps:
+      - name: Install git
+        run: apt-get update -q && apt-get install git -y --no-install-recommends
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Setup Python ${{ env.PYTHON_VER }}
-        uses: actions/setup-python@v4
-        id: python
-        with:
-          python-version: ${{ env.PYTHON_VER }}
-          cache: 'pip'
-      - name: Install Python dependencies
-        run: |
-          pip install -U jupyter-book
-          pip install -r requirements.txt
-      - name: Read Julia version
-        uses: SebRollen/toml-action@v1.0.2
-        id: read_toml
-        with:
-          file: 'Manifest.toml'
-          field: 'julia_version'
-      - name: Setup Julia
-        uses: julia-actions/setup-julia@v1
-        with:
-          version: ${{ steps.read_toml.outputs.value }}
       - name: Cache Julia dependencies
         uses: actions/cache@v3
         if: ${{ env.JULIA_CACHE != '0'}}
         with:
-          path: ${{ env.JULIA_DEPOT_PATH }}
+          path: |
+            /srv/juliapkgs
+          # ${{ github.workspace }}/.CondaPkg
           key: ${{ runner.os }}-julia-${{ env.JULIA_CACHE }}-${{ hashFiles('**/Manifest.toml') }}
           # restore-keys: |
-          #  ${{ runner.os }}-julia-${{ env.JULIA_CACHE }}-
+          #   ${{ runner.os }}-julia-${{ env.JULIA_CACHE }}-
       - name: Install Julia dependencies
         env:
-          PYTHON: ${{ steps.python.outputs.python-path }}
-        run: |
-          julia --color=yes --project=@. -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
-          julia --color=yes --project="" -e 'import Pkg; Pkg.add(["Literate", "PrettyTables"])'
-      - name: Build notebooks, ${{ env.NPROC }} processes
+          JULIA_PROJECT: ${{ github.workspace }}
+        run: julia --color=yes -e 'import Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
+      - name: Build notebooks with ${{ env.NPROC }} processes
+        env:
+          GKSwstype: 100
+          JULIA_PROJECT: ${{ github.workspace }}
         run: julia --color=yes -p ${{ env.NPROC }} literate.jl
       - name: Deploy Notebooks
         if: ${{ github.ref == 'refs/heads/main' }}
@@ -72,6 +62,17 @@ jobs:
           publish_dir: .
           publish_branch: out
           force_orphan: true
+
+  jupyter-book:
+    needs: literate
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    container: ghcr.io/sosiristseng/docker-jupyterbook:0.15.1.1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: out
       - name: Build website
         run: jupyter-book build docs/
       - name: Upload pages artifact
@@ -98,11 +99,11 @@ jobs:
         uses: actions/deploy-pages@v2
 
   binder:
-    needs: jupyter-book
+    needs: literate
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout jupyter notebook branch
+    - name: Checkout notebook branch
       uses: actions/checkout@v3
       with:
         ref: out
@@ -112,8 +113,5 @@ jobs:
         DOCKER_REGISTRY: ghcr.io
         DOCKER_USERNAME: ${{ github.repository_owner }}
         DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        IMAGE_NAME: ${{ github.repository }}
         BINDER_CACHE: true
         PUBLIC_REGISTRY_CHECK: true
-        ADDITIONAL_TAG: "binder"
-        LATEST_TAG_OFF: true

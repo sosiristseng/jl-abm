@@ -93,6 +93,9 @@ docs/site/
 # Manifest.toml
 LocalPreferences.toml
 
+# PythonCall
+.CondaPkg
+
 # generated files
 
 *.mp4
