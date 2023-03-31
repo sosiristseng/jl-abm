@@ -23,9 +23,9 @@ version = "3.6.1"
 
 [[deps.Agents]]
 deps = ["CSV", "DataFrames", "DataStructures", "Distributed", "Distributions", "Downloads", "Graphs", "JLD2", "LazyArtifacts", "LightOSM", "LinearAlgebra", "Pkg", "ProgressMeter", "Random", "Requires", "Rotations", "Scratch", "StaticArrays", "StatsBase"]
-git-tree-sha1 = "57828f7536c511ac5b93c6bf14d24a7c743a697d"
+git-tree-sha1 = "7480a593ce13937502ee2f3c9bda8a73851974a6"
 uuid = "46ada45e-f475-11e8-01d0-f70cc89e6671"
-version = "5.12.0"
+version = "5.13.0"
 
 [[deps.Animations]]
 deps = ["Colors"]
@@ -916,9 +916,9 @@ uuid = "91d4177d-7536-5919-b921-800302f37372"
 version = "1.3.2+0"
 
 [[deps.OrderedCollections]]
-git-tree-sha1 = "d78db6df34313deaca15c5c0b9ff562c704fe1ab"
+git-tree-sha1 = "d321bf2de576bf25ec4d3e4360faca399afca282"
 uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
-version = "1.5.0"
+version = "1.6.0"
 
 [[deps.PCRE2_jll]]
 deps = ["Artifacts", "Libdl"]
