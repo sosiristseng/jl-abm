@@ -19,8 +19,13 @@ mutable struct PoorSoul <: AbstractAgent
     status::Symbol      ## S/I/R
 end
 
-#---
+a = 1
+b = 2
 
+nt = (a=1, b=2)
+nt = (a=a, b=b)
+
+#---
 function make_SIRgraph(;
     Ns,                 ## Populations of the cities
     migration_rates,    ## Rate of people moving from one city to another
@@ -243,19 +248,21 @@ end
 
 display_mp4("covid_evolution.mp4")
 
-## Data Collection
+# ## Data Collection
 
 # Helper functions
 infected(x) = count(i == :I for i in x)
 recovered(x) = count(i == :R for i in x)
 
-#---
+# Define the model
 model = make_SIRgraph(; SIRgraphparams...)
 
+# CRun the model and collect the data
 to_collect = [(:status, f) for f in (infected, recovered, length)]
 data, _ = run!(model, agent_step!, 100; adata = to_collect)
 data[1:10, :]
 
+# Visualize
 N = sum(model.Ns) # Total initial population
 x = data.step
 fig = Figure(resolution = (600, 400))

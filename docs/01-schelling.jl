@@ -113,10 +113,10 @@ step!(model, agent_step!, 3)
 
 # ## Visualization
 
-# The `abm_plot()` function visulizes the simulation result. By default `Makie.jl` is used.
+# The `abmplot()` function visulizes the simulation result. By default `Makie.jl` is used.
 
 using InteractiveDynamics
-using CairoMakie            ## Makie with the Cario backend
+using CairoMakie            ## Makie with the Cairo backend
 
 # Some helper functions to identify agent groups.
 groupcolor(a) = a.group == 1 ? :blue : :orange
@@ -138,6 +138,7 @@ abmvideo(
     title = "Schelling's segregation model"
 )
 
+# Jupyter notebooks only
 using Base64
 
 function display_mp4(filename)
@@ -151,7 +152,7 @@ display_mp4("schelling.mp4")
 
 ## Data analysis
 
-The `run!()` function rusn simulation and collects data in the `DataFrame` format. The `adata` (aggregated data) keyword extacts information in the DataFrame.
+The `run!()` function runs simulation and collects data in the `DataFrame` format. The `adata` (aggregated data) keyword extacts information in the DataFrame.
 
 ====#
 
