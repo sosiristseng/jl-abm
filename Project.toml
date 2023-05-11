@@ -7,4 +7,4 @@ Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
 InteractiveDynamics = "ec714cd0-5f51-11eb-0b6e-452e7367ff84"
 
 [compat]
-julia = "1.8"
+julia = "1.9"
