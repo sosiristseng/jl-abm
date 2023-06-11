@@ -124,7 +124,7 @@ groupmarker(a) = a.group == 1 ? :circle : :rect
 
 # Plot the initial conditions of the model
 model = init_schelling(griddims = (30, 30), numagents = 500)
-figure, _ = abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
+figure, _ = Agents.abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
 figure
 
 # Let's make an animation about the simulation.
