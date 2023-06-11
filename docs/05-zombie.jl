@@ -87,7 +87,7 @@ model = init_zombie()
 
 #---
 
-abmvideo("outbreak.mp4", model, agent_step!;
+Agents.abmvideo("outbreak.mp4", model, agent_step!;
     title = "Zombie outbreak",
     framerate = 15,
     frames = 200,

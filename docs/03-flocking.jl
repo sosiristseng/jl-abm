@@ -104,14 +104,14 @@ function bird_marker(b::Bird)
 end
 
 model = init_flocking()
-figure, = abmplot(model; am = bird_marker)
+figure, = Agents.abmplot(model; am = bird_marker)
 figure
 
 # ## Animation
 
 model = init_flocking()
 
-abmvideo(
+Agents.abmvideo(
     "flocking.mp4", model, agent_step!;
     am = bird_marker,
     framerate = 20,

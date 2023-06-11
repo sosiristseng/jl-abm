@@ -213,7 +213,7 @@ using InteractiveDynamics
 using CairoMakie
 
 ## Observable: The quantity that updates dynamically and interactively
-abmobs = ABMObservable(model; agent_step!)
+abmobs = Agents.ABMObservable(model; agent_step!)
 
 infected_fraction(m, x) = count(m[id].status == :I for id in x) / length(x)
 infected_fractions(m) = [infected_fraction(m, ids_in_position(p, m)) for p in positions(m)]

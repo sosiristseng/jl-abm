@@ -96,7 +96,7 @@ function agent_step!(agent::SchellingAgent, model)
     else
         move_agent_single!(agent, model) ## Move the agent to a random position
     end
-    return
+    return nothing
 end
 
 # ## Stepping the model
@@ -131,7 +131,7 @@ figure
 
 model = init_schelling(griddims = (30, 30), numagents = 500)
 
-abmvideo(
+Agents.abmvideo(
     "schelling.mp4", model, agent_step!;
     ac = groupcolor, am = groupmarker, as = 10,
     framerate = 4, frames = 20,
