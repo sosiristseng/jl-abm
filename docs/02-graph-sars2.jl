@@ -205,8 +205,6 @@ model = make_SIRgraph(; SIRgraphparams...)
 
 #===
 ## Animation
-
-At the moment [abmplot](https://juliadynamics.github.io/Agents.jl/stable/agents_visualizations/#InteractiveDynamics.abmplot) does not plot `GraphSpace`s, but we can still utilize the [ABMObservable](https://juliadynamics.github.io/Agents.jl/stable/agents_visualizations/#InteractiveDynamics.ABMObservable). We do not need to collect data here, only the current status of the model will be used in visualization.
 ===#
 
 using InteractiveDynamics
