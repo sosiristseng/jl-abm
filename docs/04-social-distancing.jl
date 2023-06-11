@@ -40,7 +40,7 @@ agent_step!(agent::Ball, model) = move_agent!(agent, model, model.dt)
 
 model = ball_model()
 
-abmvideo(
+Agents.abmvideo(
     "socialdist1.mp4",
     model,
     agent_step!;
@@ -82,7 +82,7 @@ end
 
 model2 = ball_model()
 
-abmvideo(
+Agents.abmvideo(
     "socialdist2.mp4",
     model2,
     agent_step!,
@@ -109,7 +109,7 @@ for i in 1:400
     agent.vel = (0.0, 0.0)
 end
 
-abmvideo(
+Agents.abmvideo(
     "socialdist3.mp4",
     model3,
     agent_step!,
@@ -192,40 +192,45 @@ sir_model = init_sir()
 
 sir_colors(a) = a.status == :S ? "#2b2b33" : a.status == :I ? "#bf2642" : "#338c54"
 
-fig, abmstepper = abmplot(sir_model; ac = sir_colors)
+fig, abmstepper = Agents.abmplot(sir_model; ac = sir_colors)
 fig
 
 # Modify the `model_step!` function to simulate disease transmission.
 
-function transmit!(a1::Person, a2::Person, rp)
+function transmit!(a1::Person, a2::Person, model)
+
+    rp = model.reinfection_probability
 
     ## for transmission, only 1 can have the disease (otherwise nothing happens)
     if count(a.status == :I for a in (a1, a2)) ≠ 1
-        return
+        return nothing
     end
 
     infected, healthy = a1.status == :I ? (a1, a2) : (a2, a1)
 
     ## Lucky and not infected
     if rand(model.rng) > infected.β
-        return
+        return nothing
     end
 
     ## Risk of reinfection
     if healthy.status == :R && rand(model.rng) > rp
-        return
+        return nothing
     end
 
     ## You got virus
     healthy.status = :I
+
+    return nothing
 end
 
 function sir_model_step!(model)
     r = model.interaction_radius
     for (a1, a2) in interacting_pairs(model, r, :all)
-        transmit!(a1, a2, model.reinfection_probability)
+        transmit!(a1, a2, model)
         elastic_collision!(a1, a2, :mass)
     end
+    return nothing
 end
 
 # Agent-specific functions
@@ -233,6 +238,7 @@ function update!(agent::Person)
     if agent.status == :I
         agent.days_infected += 1
     end
+    return nothing
 end
 
 function recover_or_die!(agent::Person, model)
@@ -244,6 +250,7 @@ function recover_or_die!(agent::Person, model)
             agent.days_infected = 0
         end
     end
+    return nothing
 end
 
 function sir_agent_step!(agent::Person, model)
@@ -255,7 +262,7 @@ end
 # Running with default parameters.
 sir_model = init_sir()
 
-abmvideo(
+Agents.abmvideo(
     "socialdist4.mp4",
     sir_model,
     sir_agent_step!,
@@ -312,7 +319,7 @@ The best way to model social distancing is to make some agents simply not move (
 
 sir_model = init_sir(isolated = 0.85)
 
-abmvideo(
+Agents.abmvideo(
     "socialdist5.mp4",
     sir_model,
     sir_agent_step!,
@@ -333,6 +340,11 @@ sir_model4 = init_sir(reinfection_probability = r4, βmax = β1, isolated = 0.85
 
 data4, _ = run!(sir_model4, sir_agent_step!, sir_model_step!, 3000; adata)
 
+figure = Figure()
+ax = figure[1, 1] = Axis(figure; ylabel = "Infected", xlabel="Steps")
+l1 = lines!(ax, data1[:, dataname((:status, infected))], color = :orange)
+l2 = lines!(ax, data2[:, dataname((:status, infected))], color = :blue)
+l3 = lines!(ax, data3[:, dataname((:status, infected))], color = :green)
 l4 = lines!(ax, data4[:, dataname((:status, infected))], color = :red)
 figure[1, 2] = Legend(
     figure,
