@@ -27,9 +27,9 @@ version = "0.4.4"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra", "Requires"]
-git-tree-sha1 = "76289dc51920fdc6e0013c872ba9551d54961c24"
+git-tree-sha1 = "68c4c187a232e7abe00ac29e3b03e09af9d77317"
 uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
-version = "3.6.2"
+version = "3.7.0"
 weakdeps = ["StaticArrays"]
 
     [deps.Adapt.extensions]
@@ -739,10 +739,10 @@ uuid = "82899510-4779-5014-852e-03e436cf321d"
 version = "1.0.0"
 
 [[deps.JLD2]]
-deps = ["FileIO", "MacroTools", "Mmap", "OrderedCollections", "Pkg", "Printf", "Reexport", "Requires", "TranscodingStreams", "UUIDs"]
-git-tree-sha1 = "572d024660119ee626938419c14db0db5f3f3283"
+deps = ["FileIO", "MacroTools", "Mmap", "OrderedCollections", "Pkg", "PrecompileTools", "Printf", "Reexport", "Requires", "TranscodingStreams", "UUIDs"]
+git-tree-sha1 = "ebec83429b5dea3857e071d927156207ebd6d617"
 uuid = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
-version = "0.4.36"
+version = "0.4.37"
 
 [[deps.JLLWrappers]]
 deps = ["Artifacts", "Preferences"]
