@@ -106,7 +106,7 @@ jobs:
           path: |
             ~/.julia
             ~/.local/share/jupyter/kernels
-          key: ${{ runner.os }}-jill-${{ env.JULIA_CACHE_NUM }}-${{ steps.cache.outputs.hash }}
+          key: ${{ runner.os }}-jill-${{ env.JULIA_CACHE_NUM }}-${{ needs.setup.outputs.hash }}
       - name: Precompile Julia stuff if needed
         if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         shell: micromamba-shell {0}
