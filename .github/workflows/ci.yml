@@ -87,10 +87,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: notebooks
-          # keep folder structure
-          path: |
-            docs*/${{ matrix.notebook }}
-            docs*/**/*.gif
+          path: docs*/${{ matrix.notebook }}  # keep folder structure
           retention-days: 1
 
   render:
