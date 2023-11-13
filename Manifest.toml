@@ -119,9 +119,9 @@ version = "0.4.7"
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
 [[deps.BitFlags]]
-git-tree-sha1 = "43b1a4a8f797c1cddadf60499a8a077d4af2cd2d"
+git-tree-sha1 = "2dc09997850d68179b69dafb58ae806167a32b1b"
 uuid = "d1d4a3ce-64b1-5f1a-9ba4-7e7e69966f35"
-version = "0.1.7"
+version = "0.1.8"
 
 [[deps.Bzip2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1258,9 +1258,9 @@ version = "2.2.8"
 
 [[deps.Primes]]
 deps = ["IntegerMathUtils"]
-git-tree-sha1 = "4c9f306e5d6603ae203c2000dd460d81a5251489"
+git-tree-sha1 = "1d05623b5952aed1307bf8b43bec8b8d1ef94b6e"
 uuid = "27ebfcd6-29c5-5fa9-bf4b-fb8fc14df3ae"
-version = "0.5.4"
+version = "0.5.5"
 
 [[deps.Printf]]
 deps = ["Unicode"]
@@ -1368,9 +1368,9 @@ version = "0.4.0+0"
 
 [[deps.Rotations]]
 deps = ["LinearAlgebra", "Quaternions", "Random", "StaticArrays"]
-git-tree-sha1 = "0783924e4a332493f72490253ba4e668aeba1d73"
+git-tree-sha1 = "792d8fd4ad770b6d517a13ebb8dadfcac79405b8"
 uuid = "6038ab10-8711-5258-84ad-4b1120ba62dc"
-version = "1.6.0"
+version = "1.6.1"
 
 [[deps.RoundingEmulator]]
 git-tree-sha1 = "40b9edad2e5287e05bd413a38f61a8ff55b9557b"
