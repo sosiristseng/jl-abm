@@ -9,26 +9,52 @@ on:
       - main
     paths:
       - 'docs/**'
+      - '.lycheeignore'
       - '.github/workflows/linkcheck.yml'
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+env:
+  DIR: 'docs'
 
 jobs:
   linkcheck:
-    env:
-      DIR: 'docs'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup micromamba
-        uses: mamba-org/setup-micromamba@v1
+      - name: Setup Julia
+        uses: julia-actions/setup-julia@v1
+      - name: Convert literate notebooks to markdown files
+        shell: julia --color=yes {0}
+        working-directory: ${{ env.DIR }}
+        run: |
+          import Pkg
+          Pkg.add("Literate")
+          using Literate
+          for (root, dirs, files) in walkdir(pwd())
+            for file in files
+              if endswith(file, ".jl")
+                Literate.markdown(joinpath(root, file); mdstrings=true, flavor = Literate.CommonMarkFlavor())
+              end
+            end
+          end
+      - name: Restore lychee cache
+        id: restore-cache
+        uses: actions/cache/restore@v3
         with:
-          environment-file: environment.yml
-          cache-environment: true
-          post-cleanup: all
-      - name: Build website
-        shell: micromamba-shell {0}
-        run: jupyter-book build ${DIR} --builder linkcheck
+          path: .lycheecache
+          key: cache-lychee-${{ github.sha }}
+          restore-keys: cache-lychee-
+      - name: Lychee Checker
+        uses: lycheeverse/lychee-action@v1.8.0
+        id: lychee
+        with:
+          fail: true
+          args: '--accept 200,204,429 --verbose --no-progress --cache --max-cache-age 1d ${{ env.DIR }}'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Save lychee cache
+        uses: actions/cache/save@v3
+        if: always()
+        with:
+          path: .lycheecache
+          key: ${{ steps.restore-cache.outputs.cache-primary-key }}

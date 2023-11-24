@@ -2,7 +2,6 @@ name: ci
 
 dependencies:
   - python>=3.11
-  - nbconvert
   # Jupyter Book
   - jupyter-book
   - docutils>=0.17.1,<0.18|>=0.20
