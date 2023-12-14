@@ -12,28 +12,35 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  NJOBS: '4'
   TIMEOUT: '-1'    # nbconvert timeout
   EXTRA_ARGS: ''   # Extra arguments for nbconvert
   CACHE_NUM: '1'
   JULIA_NUM_THREADS: 'auto'
   JULIA_CONDAPKG_BACKEND: 'Null'
   JULIA_CI: 'true'
+  PY_VER: '3.12'
 
 jobs:
-  setup:
+  CI:
     runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-      hash: ${{ steps.cache.outputs.cache-primary-key }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-    - name: Setup micromamba
-      uses: mamba-org/setup-micromamba@v1
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      id: cp
       with:
-        environment-file: environment.yml
-        cache-environment: true
-        post-cleanup: all
+        python-version: ${{ env.PY_VER }}
+    - name: Cache pip
+      uses: actions/cache@v3
+      id: cache-pip
+      with:
+        path: ${{ env.pythonLocation }}
+        key: ${{ runner.os }}-pip-${{ steps.cp.outputs.python-version }}-${{ hashFiles('requirements.txt') }}
+    - name: Install python packages
+      if: ${{ steps.cache-pip.outputs.cache-hit != 'true' }}
+      run: pip install -r requirements.txt
     - name: Read Julia version
       uses: SebRollen/toml-action@v1.0.2
       id: read_toml
@@ -45,9 +52,9 @@ jobs:
         wget -O /tmp/jill.sh https://raw.githubusercontent.com/abelsiqueira/jill/main/jill.sh
         bash /tmp/jill.sh --version ${{ steps.read_toml.outputs.value }} -y
         echo "$HOME/.local/bin" >> $GITHUB_PATH
-    - name: Restore Julia packages
+    - name: Cache Julia packages
       uses: actions/cache/restore@v3
-      id: cache
+      id: cache-julia
       with:
         path: |
           ~/.julia
@@ -56,148 +63,41 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-julia-${{ env.CACHE_NUM }}-
     - name: Install Julia packages
-      shell: micromamba-shell {0}
+      if: ${{ steps.cache-julia.outputs.cache-hit != 'true' }}
       run: |
         julia --color=yes -e 'using Pkg; Pkg.add(["IJulia"])'
-        julia --project=@. --color=yes -e 'using Pkg, Dates; Pkg.instantiate(); Pkg.resolve();Pkg.precompile(); Pkg.gc(collect_delay=Day(1))'
+        julia --project=@. --color=yes -e 'using Pkg, Dates; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile(); Pkg.gc(collect_delay=Day(0))'
     - name: Save Julia packages
       uses: actions/cache/save@v3
-      if: ${{ steps.cache.outputs.cache-hit != 'true' }}
+      if: ${{ steps.cache-julia.outputs.cache-hit != 'true' }}
       with:
         path: |
           ~/.julia
           !~/.julia/registries
-        key: ${{ steps.cache.outputs.cache-primary-key }}
-    - name: List notebooks as a JSON array
-      shell: micromamba-shell {0}
-      id: set-matrix
-      working-directory: docs
-      run: echo "matrix=$(python -c 'import glob, json; print(json.dumps(glob.glob("**/*.ipynb", recursive=True)))')" >> "$GITHUB_OUTPUT"
-
-  execute:
-    needs: setup
-    strategy:
-      max-parallel: 20
-      fail-fast: false
-      matrix:
-        # Notebooks need to be executed
-        notebook: ${{ fromJSON(needs.setup.outputs.matrix) }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Restore notebook if present
-        uses: actions/cache/restore@v3
-        id: cache
-        with:
-          path: docs/${{ matrix.notebook }}
-          key: ${{ runner.os }}-notebook-${{ hashFiles(format('docs/{0}', matrix.notebook)) }}-${{ needs.setup.outputs.hash }}
-      - name: Setup micromamba
-        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
-        uses: mamba-org/setup-micromamba@v1
-        with:
-          environment-file: environment.yml
-          cache-environment: true
-          post-cleanup: all
-      - name: Read Julia version
-        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
-        uses: SebRollen/toml-action@v1.0.2
-        id: read_toml
-        with:
-          file: 'Manifest.toml'
-          field: 'julia_version'
-      - name: Install Julia using jill.sh
-        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
-        run: |
-          wget -O /tmp/jill.sh https://raw.githubusercontent.com/abelsiqueira/jill/main/jill.sh
-          bash /tmp/jill.sh --version ${{ steps.read_toml.outputs.value }} -y
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-      - name: Restore Julia packages
-        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-            ~/.julia
-            !~/.julia/registries
-          key: ${{ needs.setup.outputs.hash }}
-      - name: Install Julia packages
-        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
-        shell: micromamba-shell {0}
-        run: |
-          julia --color=yes -e 'using IJulia; IJulia.installkernel("Julia", "--project=@.")'
-          julia --project=@. --color=yes -e 'using Pkg; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile()'
-      - name: Execute Notebook
-        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
-        shell: micromamba-shell {0}
-        run: >
-          jupyter nbconvert --to notebook --execute --inplace ${{ env.EXTRA_ARGS }}
-          --ExecutePreprocessor.timeout=${{ env.TIMEOUT }}
-          --ExecutePreprocessor.kernel_name=julia-1.$(julia -e 'print(VERSION.minor)')
-          docs/${{ matrix.notebook }}
-      - name: Cache notebook
-        uses: actions/cache/save@v3
-        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
-        with:
-          path: docs/${{ matrix.notebook }}
-          key: ${{ steps.cache.outputs.cache-primary-key }}
-      - name: Upload Notebook
-        uses: actions/upload-artifact@v3
-        with:
-          name: notebooks
-          path: docs*/${{ matrix.notebook }}  # keep folder structure
-          retention-days: 1
-
-  render:
-    needs: execute
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Download notebooks
-        uses: actions/download-artifact@v3
-        with:
-          name: notebooks
-          path: out/
-      - name: Display structure of downloaded files
-        run: ls -R
-        working-directory: out
-      - name: Copy back built notebooks
-        run: cp --verbose -rf out/docs/* docs/
-      - name: Setup micromamba
-        uses: mamba-org/setup-micromamba@v1
-        with:
-          environment-file: environment.yml
-          cache-environment: true
-          post-cleanup: all
-      - name: Build website
-        shell: micromamba-shell {0}
-        run: jupyter-book build docs/
-      - name: Upload pages artifact
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: docs/_build/html/
-
-  # CI conclusion for GitHub status check
-  # Adaped from https://brunoscheufler.com/blog/2022-04-09-the-required-github-status-check-that-wasnt
-  CI:
-    needs: render
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          if [[ ${{ needs.render.result }} == "success" ]]; then
-            echo "Tests passed"
-            exit 0
-          else
-            echo "Tests failed"
-            exit 1
-          fi
+        key: ${{ steps.cache-julia.outputs.cache-primary-key }}
+    - name: Install IJulia kernel
+      run: julia --color=yes -e 'using IJulia; installkernel("Julia", "--project=@.")'
+    - name: Execute Notebooks
+      run: >
+        find docs -type f -name '*.ipynb' |
+        parallel --joblog /tmp/log -j${NJOBS} jupyter nbconvert --to notebook --execute --inplace ${{ env.EXTRA_ARGS }}
+        --ExecutePreprocessor.timeout=${{ env.TIMEOUT }}
+        --ExecutePreprocessor.kernel_name=julia-1.$(julia -e 'print(VERSION.minor)')
+        {}
+    - name: Show execution stats
+      run: cat /tmp/log
+    - name: Build website
+      run: jupyter-book build docs/
+    - name: Upload pages artifact
+      if: ${{ github.ref == 'refs/heads/main' }}
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: docs/_build/html/
 
   # Deployment job
   deploy:
     name: Deploy to GitHub pages
-    needs: render
+    needs: CI
     if: ${{ github.ref == 'refs/heads/main' }}
     # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
     permissions:

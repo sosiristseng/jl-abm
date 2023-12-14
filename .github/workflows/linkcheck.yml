@@ -19,16 +19,24 @@ jobs:
   linkcheck:
     env:
       DIR: 'docs'
+      PY_VER: '3.12'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup micromamba
-        uses: mamba-org/setup-micromamba@v1
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        id: cp
         with:
-          environment-file: environment.yml
-          cache-environment: true
-          post-cleanup: all
+          python-version: ${{ env.PY_VER }}
+      - name: Cache pip
+        uses: actions/cache@v3
+        id: cache-pip
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-pip-${{ steps.cp.outputs.python-version }}-${{ hashFiles('requirements.txt') }}
+      - name: Install python packages
+        if: ${{ steps.cache-pip.outputs.cache-hit != 'true' }}
+        run: pip install -r requirements.txt
       - name: Build website
-        shell: micromamba-shell {0}
         run: jupyter-book build ${DIR} --builder linkcheck
