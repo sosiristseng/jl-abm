@@ -108,7 +108,7 @@ step!(model, agent_step!, 3)
 # ## Visualization
 # The abmplot() function visulizes the simulation result using Makie.jl.
 # Here we use the Cairo backend
-using InteractiveDynamics
+
 using CairoMakie
 
 # Some helper functions to identify agent groups.

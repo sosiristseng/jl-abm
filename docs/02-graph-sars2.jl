@@ -190,7 +190,7 @@ end
 model = make_SIRgraph(; SIRgraphparams...)
 
 # ## Animation
-using InteractiveDynamics
+
 using CairoMakie
 
 # Observable: The quantity that updates dynamically and interactively Makie plots.

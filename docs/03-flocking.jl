@@ -91,7 +91,7 @@ end
 
 # ## Visualization
 
-using InteractiveDynamics
+
 using CairoMakie
 
 const bird_polygon = Polygon(Point2f[(-0.5, -0.5), (1, 0), (-0.5, 0.5)])

@@ -30,7 +30,7 @@ function ball_model(; speed = 0.002, seed = 42)
 end
 
 # ## Visualization (I)
-using InteractiveDynamics
+
 using CairoMakie
 
 agent_step!(agent::Ball, model) = move_agent!(agent, model, model.dt)

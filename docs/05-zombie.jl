@@ -75,7 +75,7 @@ function agent_step!(agent::Zombie, model)
 end
 
 # ## Visulization
-using InteractiveDynamics
+
 using CairoMakie
 
 ac(agent::Zombie) = agent.infected ? :green : :black
