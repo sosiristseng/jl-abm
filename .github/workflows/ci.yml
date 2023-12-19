@@ -1,4 +1,4 @@
-name: CI with dynamic parallel matrix
+name: Build notebooks and publish
 
 on:
   workflow_dispatch:
@@ -12,146 +12,80 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  TIMEOUT: '-1'    # nbconvert timeout
-  EXTRA_ARGS: ''   # Extra arguments for nbconvert
-  PY_VER: '3.12'   # Python version
+  NPROC: '2' # Number of Julia processes to run the notebooks
+  CACHE_NUM: '1'
+  PY_VER: '3.12'
+  JULIA_CONDAPKG_BACKEND: 'Null'
+  JULIA_CI: 'true'
 
 jobs:
-  setup:
-    permissions:
-      packages: write
+  CI:
     runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-      hash: ${{ steps.img.outputs.hash }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-    - name: Login to ghcr.io
-      uses: docker/login-action@v3
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      id: cp
       with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner	}}
-        password: ${{ github.token }}
-    - name: Get docker image hash
-      id: img
-      run: echo "hash=${{ hashFiles('requirements.txt', 'Project.toml', 'Manifest.toml', 'src/**', 'env.Dockerfile') }}" >> "$GITHUB_OUTPUT"
-    - name: Build Docker container
-      env:
-        IMG: ghcr.io/${{ github.repository }}:${{ steps.img.outputs.hash }}
+        python-version: ${{ env.PY_VER }}
+    - name: Cache pip
+      uses: actions/cache@v3
+      id: cache-pip
+      with:
+        path: ${{ env.pythonLocation }}
+        key: ${{ runner.os }}-pip-${{ steps.cp.outputs.python-version }}-${{ hashFiles('requirements.txt') }}
+    - name: Install python packages
+      if: ${{ steps.cache-pip.outputs.cache-hit != 'true' }}
+      run: pip install -r requirements.txt
+    - name: Read Julia version
+      uses: SebRollen/toml-action@v1.0.2
+      id: read_toml
+      with:
+        file: 'Manifest.toml'
+        field: 'julia_version'
+    - name: Install Julia using jill.sh
       run: |
-        docker manifest inspect ${IMG} && exit 0
-        docker build -f env.Dockerfile -t ${IMG} .
-        docker push ${IMG}
-    - name: List notebooks as a JSON array
-      id: set-matrix
-      working-directory: docs
-      run: echo "matrix=$(python -c 'import glob, json; print(json.dumps(glob.glob("**/*.ipynb", recursive=True)))')" >> "$GITHUB_OUTPUT"
+        wget -O /tmp/jill.sh https://raw.githubusercontent.com/abelsiqueira/jill/main/jill.sh
+        bash /tmp/jill.sh --version ${{ steps.read_toml.outputs.value }} -y
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+    - name: Cache Julia packages
+      uses: actions/cache/restore@v3
+      id: cache-julia
+      with:
+        path: |
+          ~/.julia
+          !~/.julia/registries
+        key: ${{ runner.os }}-julia-${{ env.CACHE_NUM }}-${{ hashFiles('src/**','Project.toml', 'Manifest.toml')}}
+        restore-keys: |
+          ${{ runner.os }}-julia-${{ env.CACHE_NUM }}-
+    - name: Install Julia packages
+      if: ${{ steps.cache-julia.outputs.cache-hit != 'true' }}
+      run: |
+        julia --color=yes -e 'using Pkg; Pkg.add(["PrettyTables", "Literate"])'
+        julia --project=@. --color=yes -e 'using Pkg, Dates; Pkg.instantiate(); Pkg.resolve(); Pkg.precompile(); Pkg.gc(collect_delay=Day(0))'
+    - name: Save Julia packages
+      uses: actions/cache/save@v3
+      if: ${{ steps.cache-julia.outputs.cache-hit != 'true' }}
+      with:
+        path: |
+          ~/.julia
+          !~/.julia/registries
+        key: ${{ steps.cache-julia.outputs.cache-primary-key }}
+    - name: Run program
+      run: julia --color=yes -p ${{ env.NPROC }} literate.jl
+    - name: Build website
+      run: jupyter-book build docs/
+    - name: Upload pages artifact
+      if: ${{ github.ref == 'refs/heads/main' }}
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: docs/_build/html
 
-  execute:
-    needs: setup
-    strategy:
-      max-parallel: 20
-      fail-fast: false
-      matrix:
-        # Notebooks need to be executed
-        notebook: ${{ fromJSON(needs.setup.outputs.matrix) }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Restore notebook if present
-        uses: actions/cache/restore@v3
-        id: nb-cache
-        with:
-          path: docs/${{ matrix.notebook }}
-          key: ${{ runner.os }}-notebook-${{ hashFiles(format('docs/{0}', matrix.notebook)) }}-${{ needs.setup.outputs.hash }}
-      - name: Pull docker image
-        if: ${{ steps.nb-cache.outputs.cache-hit != 'true' }}
-        run: docker pull ghcr.io/${{ github.repository }}:${{ needs.setup.outputs.hash }}
-      - name: Execute Notebook
-        if: ${{ steps.nb-cache.outputs.cache-hit != 'true' }}
-        run: >
-          docker run --rm -w /tmp -v ${{ github.workspace }}:/tmp
-          -e EXTRA_ARGS=${{ env.EXTRA_ARGS }}
-          -e TIMEOUT=${{ env.TIMEOUT }}
-          -e NOTEBOOK=${{ matrix.notebook }}
-          ghcr.io/${{ github.repository }}:${{ needs.setup.outputs.hash }}
-          bash ./execute.sh
-      - name: Cache notebook
-        uses: actions/cache/save@v3
-        if: ${{ steps.nb-cache.outputs.cache-hit != 'true' }}
-        with:
-          path: docs/${{ matrix.notebook }}
-          key: ${{ steps.nb-cache.outputs.cache-primary-key }}
-      - name: Convert artifact Name
-        id: art
-        run: echo "name=$(echo ${{ matrix.notebook }} | sed 's/\//-/g')" >> "$GITHUB_OUTPUT"
-      - name: Upload Notebook
-        uses: actions/upload-artifact@v4
-        with:
-          name: notebook-${{ steps.art.outputs.name }}
-          path: docs*/${{ matrix.notebook }}  # keep folder structure
-          retention-days: 1
-
-  render:
-    needs: execute
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Download notebooks
-        uses: actions/download-artifact@v4
-        with:
-          path: out/
-      - name: Display structure of downloaded files
-        run: ls -R
-        working-directory: out
-      - name: Copy back built notebooks
-        run: for d in out/notebook-*; do cp --verbose -rf "$d"/docs/* docs/; done
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        id: cpy
-        with:
-          python-version: ${{ env.PY_VER }}
-      - name: Cache pip
-        uses: actions/cache@v3
-        id: cache-pip
-        with:
-          path: ${{ env.pythonLocation }}
-          key: ${{ runner.os }}-pip-${{ steps.cpy.outputs.python-version }}-${{ hashFiles('requirements-jb.txt') }}
-      - name: Install python packages
-        if: ${{ steps.cache-pip.outputs.cache-hit != 'true' }}
-        run: pip install -r requirements-jb.txt
-      - name: Build website
-        run: jupyter-book build docs/
-      - name: Upload pages artifact
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: docs/_build/html/
-
-  # CI conclusion for GitHub status check
-  # Adaped from https://brunoscheufler.com/blog/2022-04-09-the-required-github-status-check-that-wasnt
-  CI:
-    needs: render
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          if [[ ${{ needs.render.result }} == "success" ]]; then
-            echo "Tests passed"
-            exit 0
-          else
-            echo "Tests failed"
-            exit 1
-          fi
-
-  # Deployment job
   deploy:
     name: Deploy to GitHub pages
-    needs: render
-    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: CI
+    if: ${{ github.ref == 'refs/heads/main'}}
     # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
     permissions:
       pages: write # to deploy to Pages
@@ -161,6 +95,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v3
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v3

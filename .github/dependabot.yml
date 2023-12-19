@@ -14,10 +14,3 @@ updates:
       interval: daily
     labels:
       - automerge
-  - package-ecosystem: docker
-    directory: "/"
-    open-pull-requests-limit: 1
-    schedule:
-      interval: daily
-    labels:
-      - automerge
