@@ -11,19 +11,16 @@ The flock model illustrates how flocking behavior can emerge when each bird foll
 ===#
 
 using Agents
+using Random
 using LinearAlgebra
 
-#---
-mutable struct Bird <: AbstractAgent
-    id::Int
-    pos::NTuple{2,Float64}
-    vel::NTuple{2,Float64}   ## Moving in ContinuousSpace
-    speed::Float64           ## How far the bird travels
-    cohere_factor::Float64   ## the importance of maintaining the average position of neighbors
-    separation::Float64      ## the minimum distance a bird must maintain from its neighbors
-    separate_factor::Float64 ## the importance of maintaining the minimum distance from neighboring birds
-    match_factor::Float64    ## the importance of matching the average trajectory of neighboring birds
-    visual_distance::Float64 ## the distance a bird can see and defines a radius of neighboring birds
+@agent Bird ContinuousAgent{2} begin
+    speed::Float64
+    cohere_factor::Float64
+    separation::Float64
+    separate_factor::Float64
+    match_factor::Float64
+    visual_distance::Float64
 end
 
 #---
@@ -90,14 +87,12 @@ function agent_step!(bird::Bird, model)
 end
 
 # ## Visualization
-
-
 using CairoMakie
 
-const bird_polygon = Polygon(Point2f[(-0.5, -0.5), (1, 0), (-0.5, 0.5)])
+const bird_polygon = Makie.Polygon(Point2f[(-0.5, -0.5), (1, 0), (-0.5, 0.5)])
 function bird_marker(b::Bird)
     φ = atan(b.vel[2], b.vel[1])
-    scale(rotate2D(bird_polygon, φ), 2)
+    rotate_polygon(bird_polygon, φ)
 end
 
 model = init_flocking()
@@ -105,7 +100,6 @@ figure, = Agents.abmplot(model; am = bird_marker)
 figure
 
 # ## Animation
-
 model = init_flocking()
 
 Agents.abmvideo(

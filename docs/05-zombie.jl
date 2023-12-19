@@ -1,5 +1,5 @@
 # # Zombie Outbreak: An OpenStreetMap Example
-# From: https://juliadynamics.github.io/Agents.jl/stable/examples/zombies/
+# Source: https://juliadynamics.github.io/Agents.jl/stable/examples/zombies/
 
 using Agents
 using Random
@@ -7,7 +7,7 @@ using Random
 #===
 Define zombies/humans to be Openstreetmap (OSM) agents.
 
-The following code, which uses `@agent` macro, is qquivalent to
+The following code, which uses `@agent` macro, is equivalent to
 
 ```julia
 mutable struct Zombie <: AbstractAgent
@@ -54,7 +54,7 @@ function init_zombie(; seed = 1234)
 end
 
 #---
-function agent_step!(agent::Zombie, model)
+function zombie_step!(agent::Zombie, model)
     ## Each agent will progress along their route
     ## Keep track of distance left to move this step, in case the agent reaches its
     ## destination early
@@ -77,17 +77,20 @@ end
 # ## Visulization
 
 using CairoMakie
+using OSMMakie
 
-ac(agent::Zombie) = agent.infected ? :green : :black
-as(agent::Zombie) = agent.infected ? 10 : 8
+zombie_color(agent::Zombie) = agent.infected ? :green : :black
+zombie_size(agent::Zombie) = agent.infected ? 10 : 8
 
 model = init_zombie()
 
-Agents.abmvideo("outbreak.mp4", model, agent_step!;
+Agents.abmvideo(
+    "outbreak.mp4",
+    model, zombie_step!;
     title = "Zombie outbreak",
-    framerate = 15,
-    frames = 200,
-    as, ac)
+    framerate = 15, frames = 200,
+    as=zombie_size, ac=zombie_color
+)
 
 using Base64
 function display_mp4(filename)
