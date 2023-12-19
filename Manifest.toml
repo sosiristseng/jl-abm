@@ -1,8 +1,8 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.0-rc2"
+julia_version = "1.10.0-rc3"
 manifest_format = "2.0"
-project_hash = "5018e1f371415c99851184652b4aa4637164820b"
+project_hash = "026472b2e0cf80fbf7737c3ace8d5f50c265ff03"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -683,12 +683,6 @@ git-tree-sha1 = "31d6adb719886d4e32e38197aae466e98881320b"
 uuid = "1d5cc7b8-4909-519e-a0f8-d0f5ad9712d0"
 version = "2024.0.0+0"
 
-[[deps.InteractiveDynamics]]
-deps = ["DataStructures", "GraphMakie", "Makie", "OSMMakie", "Observables", "Requires", "StatsBase", "Test"]
-git-tree-sha1 = "d0cc017062386bbb0df000ef419c64c33cd6ccb2"
-uuid = "ec714cd0-5f51-11eb-0b6e-452e7367ff84"
-version = "0.22.1"
-
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
@@ -749,9 +743,9 @@ version = "1.0.0"
 
 [[deps.JLD2]]
 deps = ["FileIO", "MacroTools", "Mmap", "OrderedCollections", "Pkg", "PrecompileTools", "Printf", "Reexport", "Requires", "TranscodingStreams", "UUIDs"]
-git-tree-sha1 = "9bbb5130d3b4fa52846546bca4791ecbdfb52730"
+git-tree-sha1 = "c2d0f45afcb5f6209155670bffd100c3b4937ea3"
 uuid = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
-version = "0.4.38"
+version = "0.4.40"
 
 [[deps.JLLWrappers]]
 deps = ["Artifacts", "Preferences"]
@@ -1599,7 +1593,7 @@ deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 
 [[deps.SuiteSparse_jll]]
-deps = ["Artifacts", "Libdl", "Pkg", "libblastrampoline_jll"]
+deps = ["Artifacts", "Libdl", "libblastrampoline_jll"]
 uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
 version = "7.2.1+1"
 
