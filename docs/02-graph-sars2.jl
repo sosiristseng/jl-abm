@@ -210,7 +210,7 @@ title = lift(
 )
 
 #---
-fig = Figure(resolution = (600, 400))
+fig = Figure(size = (600, 400))
 ax = Axis(fig[1, 1]; title, xlabel = "City", ylabel = "Population")
 barplot!(ax, model.Ns; strokecolor = :black, strokewidth = 1, color)
 fig

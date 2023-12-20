@@ -89,7 +89,8 @@ Agents.abmvideo(
     model, zombie_step!;
     title = "Zombie outbreak",
     framerate = 15, frames = 200,
-    as=zombie_size, ac=zombie_color
+    as=zombie_size, ac=zombie_color,
+    figure=(size=(600, 600),),
 )
 
 using Base64

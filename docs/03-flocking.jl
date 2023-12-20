@@ -105,8 +105,8 @@ model = init_flocking()
 Agents.abmvideo(
     "flocking.mp4", model, agent_step!;
     am = bird_marker,
-    framerate = 20,
-    frames = 200,
+    framerate = 20, frames = 200,
+    figure = (size = (600, 600),),
     title = "Flocking"
 )
 
