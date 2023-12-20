@@ -84,20 +84,3 @@ jobs:
         publish_dir: docs/_build/html
         force_orphan: true
         commit_message: ${{ github.event.head_commit.message }}
-
-  deploy:
-    name: Deploy to GitHub pages
-    needs: CI
-    if: ${{ github.ref == 'refs/heads/main'}}
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      pages: write # to deploy to Pages
-      id-token: write # to verify the deployment originates from an appropriate source
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
