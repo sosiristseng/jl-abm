@@ -21,8 +21,6 @@ env:
 jobs:
   CI:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -82,5 +80,24 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       if: ${{ github.ref == 'refs/heads/main' }}
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/_build/html
+        github_token: ${{ secrets.GITHUB_TOKEN }}  # You need an SSH deploy key if deploying to another repo
+        publish_dir: docs/_build/html
+        force_orphan: true
+        commit_message: ${{ github.event.head_commit.message }}
+
+  deploy:
+    name: Deploy to GitHub pages
+    needs: CI
+    if: ${{ github.ref == 'refs/heads/main'}}
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
