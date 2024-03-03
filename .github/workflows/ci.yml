@@ -14,7 +14,6 @@ concurrency:
 env:
   NPROC: '2' # Number of Julia processes to run the notebooks
   CACHE_NUM: '1'
-  PY_VER: '3.12'
   JULIA_CONDAPKG_BACKEND: 'Null'
   JULIA_CI: 'true'
   JULIA_NUM_THREADS: '2'
@@ -29,18 +28,19 @@ jobs:
       uses: actions/setup-python@v5
       id: cp
       with:
-        python-version: ${{ env.PY_VER }}
-    - name: Cache pip
-      uses: actions/cache@v3
-      id: cache-pip
+        python-version: '3.x'
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      id: cache-py
       with:
+        save-always: 'true'
         path: ${{ env.pythonLocation }}
-        key: ${{ runner.os }}-pip-${{ steps.cp.outputs.python-version }}-${{ hashFiles('requirements.txt') }}
-    - name: Install python packages
-      if: ${{ steps.cache-pip.outputs.cache-hit != 'true' }}
+        key:  ${{ runner.os }}-pip-${{ steps.cp.outputs.python-version }}-${{ hashFiles('requirements.txt') }}
+    - name: Install pip dependencies if cache miss
+      if: ${{ steps.cache-py.outputs.cache-hit != 'true' }}
       run: pip install -r requirements.txt
     - name: Read Julia version
-      uses: SebRollen/toml-action@v1.0.2
+      uses: SebRollen/toml-action@v1.2.0
       id: read_toml
       with:
         file: 'Manifest.toml'
@@ -49,31 +49,41 @@ jobs:
       uses: julia-actions/setup-julia@v1
       with:
         version: ${{ steps.read_toml.outputs.value }}
-        show-versioninfo: 'true'
     - name: Cache Julia packages
-      uses: actions/cache/restore@v3
+      uses: actions/cache@v4
       id: cache-julia
       with:
+        save-always: 'true'
         path: |
           ~/.julia
           !~/.julia/registries
-        key: ${{ runner.os }}-julia-${{ steps.read_toml.outputs.value }}-${{ env.CACHE_NUM }}-${{ hashFiles('src/**','Project.toml', 'Manifest.toml')}}
+        key: ${{ runner.os }}-julia-${{ env.CACHE_NUM }}-${{ hashFiles('src/**', 'Project.toml', 'Manifest.toml' )}}
         restore-keys: |
-          ${{ runner.os }}-julia-${{ steps.read_toml.outputs.value }}-${{ env.CACHE_NUM }}-
+          ${{ runner.os }}-julia-${{ env.CACHE_NUM }}-
     - name: Install Julia packages
       if: ${{ steps.cache-julia.outputs.cache-hit != 'true' }}
+      env:
+        PYTHON: ${{ env.pythonLocation }}/python
+      shell: julia --color=yes {0}
       run: |
-        julia --project=@. --color=yes -e 'using Pkg, Dates; Pkg.instantiate(); Pkg.precompile(); Pkg.gc(collect_delay=Day(0))'
-    - name: Save Julia packages
-      uses: actions/cache/save@v3
-      if: ${{ steps.cache-julia.outputs.cache-hit != 'true' }}
+        using Pkg, Dates
+        Pkg.add(["PrettyTables", "Literate"])
+        Pkg.activate(".")
+        Pkg.instantiate()
+        Pkg.precompile()
+        Pkg.gc(collect_delay=Day(0))
+    - name: Cache literate notebooks
+      uses: actions/cache@v4
+      id: cache-nb
       with:
         path: |
-          ~/.julia
-          !~/.julia/registries
-        key: ${{ steps.cache-julia.outputs.cache-primary-key }}
-    - name: Run program
-      run: julia --project=@. --color=yes -p ${{ env.NPROC }} literate.jl
+          docs/**/*.ipynb
+          docs/**/*.sha
+        key: ${{ runner.os }}-nb-${{ hashFiles('src/**', 'Project.toml', 'Manifest.toml' )}}-${{ hashFiles('docs/**/*.jl') }}
+        restore-keys: |
+          ${{ runner.os }}-nb-${{ hashFiles('src/**', 'Project.toml', 'Manifest.toml' )}}-
+    - name: Run literate notebooks
+      run: julia --color=yes -p ${{ env.NPROC }} literate.jl
     - name: Build website
       run: jupyter-book build docs/
     - name: Upload page artifact

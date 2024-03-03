@@ -9,11 +9,8 @@ on:
       - main
     paths:
       - 'docs/**'
+      - '.lycheeignore'
       - '.github/workflows/linkcheck.yml'
-
-env:
-  DIR: 'docs'
-  PY_VER: '3.12'
 
 jobs:
   linkcheck:
@@ -21,25 +18,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        id: cp
-        with:
-          python-version: ${{ env.PY_VER }}
-      - name: Cache pip
-        uses: actions/cache@v3
-        id: cache-pip
-        with:
-          path: ${{ env.pythonLocation }}
-          key: ${{ runner.os }}-pip-${{ steps.cp.outputs.python-version }}-${{ hashFiles('requirements.txt') }}
-      - name: Install python packages
-        if: ${{ steps.cache-pip.outputs.cache-hit != 'true' }}
-        run: pip install -r requirements.txt
       - name: Setup Julia
         uses: julia-actions/setup-julia@v1
       - name: Convert literate notebooks to markdown files
         shell: julia --color=yes {0}
-        working-directory: ${{ env.DIR }}
+        working-directory: docs
         run: |
           import Pkg
           Pkg.add("Literate")
@@ -48,9 +31,22 @@ jobs:
             for file in files
               if endswith(file, ".jl")
                 nb = joinpath(root, file)
-                Literate.notebook(nb, dirname(nb); mdstrings=true, execute=false)
+                Literate.markdown(nb, dirname(nb); mdstrings=true, flavor=Literate.CommonMarkFlavor())
               end
             end
           end
-      - name: Check links
-        run: jupyter-book build ${DIR} --builder linkcheck
+      - name: Restore lychee cache
+        uses: actions/cache@v4
+        with:
+          save-always: 'true'
+          path: .lycheecache
+          key: cache-lychee-${{ github.sha }}
+          restore-keys: cache-lychee-
+      - name: Lychee Checker
+        uses: lycheeverse/lychee-action@v1.9.3
+        id: lychee
+        with:
+          fail: true
+          args: '--accept 200,204,429 --verbose --no-progress --cache --max-cache-age 1d docs/'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

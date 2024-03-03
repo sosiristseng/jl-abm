@@ -1,3 +1,1 @@
-# matplotlib==3.8.2
-jupyter-book==0.15.1
-docutils!=0.18.*,!=0.19.*
+jupyter-book==1.0.0
