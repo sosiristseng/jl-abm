@@ -45,7 +45,7 @@ function create_model(;
     ## Number of cities
     C = length(Ns)
 
-    # normalize migration rates
+    ## normalize migration rates
     migration_rates_sum = sum(migration_rates, dims = 2)
     for c in 1:C
         migration_rates[c, :] ./= migration_rates_sum[c]
