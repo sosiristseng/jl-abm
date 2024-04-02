@@ -24,10 +24,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Julia
-        uses: julia-actions/setup-julia@v1
+        uses: julia-actions/setup-julia@v2
       - name: Convert literate notebooks to ipynb files
         shell: julia --color=yes {0}
-        working-directory: docs
+        working-directory: ${{ env.DIR }}
         run: |
           import Pkg
           Pkg.add("Literate")
@@ -42,17 +42,16 @@ jobs:
           end
       - name: Setup Python
         uses: actions/setup-python@v5
-        id: cp
+        id: setup-python
         with:
           python-version: '3.x'
-      - name: Cache pip dependencies
+      - name: Cache python
         uses: actions/cache@v4
         id: cache-py
         with:
-          save-always: 'true'
+          key: ${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('requirements.txt') }}
           path: ${{ env.pythonLocation }}
-          key:  ${{ runner.os }}-pip-${{ steps.cp.outputs.python-version }}-${{ hashFiles('requirements.txt') }}
-      - name: Install pip dependencies if cache miss
+      - name: Install Python dependencies
         if: ${{ steps.cache-py.outputs.cache-hit != 'true' }}
         run: pip install -r requirements.txt
       - name: Build website
