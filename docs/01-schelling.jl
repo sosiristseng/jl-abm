@@ -109,13 +109,32 @@ figure
 
 # Let's make an animation for the model evolution.
 # Using the `abmvideo()` function
-
+model = init_schelling()
 Agents.abmvideo(
-    "schelling.gif", model;
+    "schelling.mp4", model;
     agent_color = groupcolor,
     agent_marker = groupmarker,
-    agent_size = 10,
+    agent_size = 5,
     framerate = 4, frames = 20,
-    figure = (size = (350, 350),),
+    figure = (size = (300, 300),),
     title = "Schelling's segregation model"
 )
+
+# The helper function `display_mp4()` displays mp4 files in Jupyter notebooks
+
+using Base64
+
+function display_mp4(filename)
+    display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
+        Base64.base64encode(open(read, filename)),"""" type="video/mp4"></video>"""))
+end
+
+display_mp4("schelling.mp4")
+
+## Data analysis
+# The `run!()` function runs simulation and collects data in the `DataFrame` format. The `adata` (aggregated data) keyword selects fields we want to extract in the DataFrame.
+x(agent) = agent.pos[1]
+adata = [x, :mood, :group]
+model = init_schelling()
+adf, mdf = run!(model, 5; adata)
+adf[end-10:end, :] ## display only the last few rows
