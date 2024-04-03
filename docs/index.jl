@@ -16,8 +16,8 @@ This makes ABM more flexible to model individual behaviors.
 
 To use `Agents.jl`, we need to define:
 
-- The [**space**](https://juliadynamics.github.io/Agents.jl/stable/api/#Available-spaces-1) where the agents live
-- The [**agents**](https://juliadynamics.github.io/Agents.jl/stable/tutorial/#Agents.@agent) with self-defined properties.
+- The [**space**](https://juliadynamics.github.io/Agents.jl/stable/api/#Discrete-spaces) where the agents live
+- The [**agents**](https://juliadynamics.github.io/Agents.jl/stable/api/#Agents.@agent) with self-defined properties.
 - The **model** to hold the `space`, the `agent`s, and other parameters (called `properties`)
 - The stepping function `step!()` to tell how the model evolve.
 
