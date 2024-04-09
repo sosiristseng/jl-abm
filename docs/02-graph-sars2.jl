@@ -1,7 +1,7 @@
 #===
 # The spread of SARS-CoV-2 (Graph model)
 
-[Source](https://juliadynamics.github.io/Agents.jl/stable/examples/sir/) from Agents.jl tutorial
+[Source](https://juliadynamics.github.io/Agents.jl/stable/examples/sir/) from Agents.jl examples
 
 Here we add one more category of individuals: those who are infected, but do not know it. Transmission rate for infected and diagnosed individuals is lower than infected and undetected.
 ===#
