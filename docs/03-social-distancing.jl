@@ -16,7 +16,6 @@ function display_mp4(filename)
         Base64.base64encode(open(read, filename)), """" type="video/mp4"></video>"""))
 end
 
-
 # Let us first create a simple model where balls move around in a continuous space. We need to create agents that comply with `ContinuousSpace`, i.e. they have a pos and vel fields, both of which are tuples of float numbers.
 
 @agent struct SocialAgent(ContinuousAgent{2, Float64})
