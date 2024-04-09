@@ -7,3 +7,4 @@ chapters:
   - file: 01-schelling
   - file: 02-graph-sars2
   - file: 03-social-distancing
+  - file: 04-flocking
