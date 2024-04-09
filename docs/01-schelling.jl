@@ -90,7 +90,7 @@ step!(model, 3)
 happy90(model, time) = count(a -> a.mood == true, allagents(model))/nagents(model) ≥ 0.9
 step!(model, happy90)
 
-# How many steps are passes
+# How many steps are passed
 abmtime(model)
 
 # ## Visualization
