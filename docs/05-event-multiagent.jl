@@ -14,8 +14,10 @@ The spatial rock-paper-scissors (RPS) is an ABM with the following rules:
 using Agents
 using Random
 using LinearAlgebra
-using CairoMakie
 using Base64
+using Agents.DataFrames
+using CairoMakie
+CairoMakie.activate!(px_per_unit = 1.0)
 
 function display_mp4(filename)
     display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
@@ -124,3 +126,53 @@ abmqueue(model)
 # The time in `EventQueueABM` is continuous, so we can pass real-valued time
 step!(model, 123.456)
 nagents(model)
+
+# step! also accepts a terminating condition
+function terminate(model, t)
+    willterm = length(allagents(model)) < 5000
+    return willterm || (t > 1000.0)
+end
+
+model = initialize_rps()
+step!(model, terminate)
+abmtime(model)
+
+# ## Data collection
+# adata: aggregated data to extract information from the execution stats
+# adf: agent data frame
+model = initialize_rps()
+adata = [(a -> kindof(a) === X, count) for X in allkinds(RPS)]
+
+adf, mdf = run!(model, 100.0; adata, when = 0.5, dt = 0.01)
+adf[1:10, :]
+
+# ## Visualize population change
+tvec = adf[!, :time]  ## time as x axis
+populations = adf[:, Not(:time)]  ## agents as data
+alabels = ["rocks", "papers", "scissors"]
+
+fig = Figure();
+ax = Axis(fig[1,1]; xlabel = "time", ylabel = "population")
+for (i, l) in enumerate(alabels)
+    lines!(ax, tvec, populations[!, i]; label = l)
+end
+axislegend(ax)
+fig
+
+# ## Visualize agent distribution
+const colormap = Dict(:Rock => "black", :Scissors => "gray", :Paper => "orange")
+agent_color(agent) = colormap[kindof(agent)]
+plotkw = (agent_color, agent_marker = :rect, agent_size = 5)
+fig, ax, abmobs = abmplot(model; plotkw...)
+
+fig
+
+# ## Animation
+model = initialize_rps()
+abmvideo("rps_eventqueue.mp4", model;
+    dt = 0.5, frames = 300,
+    title = "Rock Paper Scissors (event based)",
+    plotkw...,
+)
+
+display_mp4("rps_eventqueue.mp4")
