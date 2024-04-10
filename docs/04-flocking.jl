@@ -13,8 +13,10 @@ Each agent follows three simple rules:
 using Agents
 using Random
 using LinearAlgebra
-using CairoMakie
 using Base64
+using CairoMakie
+CairoMakie.activate!(px_per_unit = 1.0)
+
 
 function display_mp4(filename)
     display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
@@ -122,7 +124,6 @@ abmvideo(
     agent_marker = bird_marker,
     framerate = 20, frames = 150,
     title = "Flocking",
-    figure=(size=(400, 400),),
 )
 
 display_mp4("flocking.mp4")

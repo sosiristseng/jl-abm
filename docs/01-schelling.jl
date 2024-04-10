@@ -24,6 +24,14 @@ First, we create a 2D space with a Chebyshev metric. This leads to *8 neighborin
 using Agents
 using Random
 
+# The helper function `display_mp4()` displays mp4 files in Jupyter notebooks
+using Base64
+function display_mp4(filename)
+    display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
+        Base64.base64encode(open(read, filename)),"""" type="video/mp4"></video>"""))
+end
+
+
 # Define the Agent type using the [`@agent`](https://juliadynamics.github.io/Agents.jl/stable/api/#Agents.@agent) macro.
 # The agents inherit all properties of `GridAgent{2}` sicne they live on a 2D grid. They also have two properties: `mood` (happy or not) and `group`.
 @agent struct SchellingAgent(GridAgent{2})
@@ -90,13 +98,14 @@ step!(model, 3)
 happy90(model, time) = count(a -> a.mood == true, allagents(model))/nagents(model) ≥ 0.9
 step!(model, happy90)
 
-# How many steps are passes
+# How many steps are passed
 abmtime(model)
 
 # ## Visualization
 # The `abmplot()` function visulizes the simulation result using Makie.jl.
 # Here we use the Cairo backend
 using CairoMakie
+CairoMakie.activate!(px_per_unit = 1.0)
 
 # Some helper functions to identify agent groups.
 groupcolor(a) = a.group == 1 ? :blue : :orange
@@ -104,7 +113,7 @@ groupmarker(a) = a.group == 1 ? :circle : :rect
 
 # Plot the initial conditions of the model
 model = init_schelling()
-figure, _ = abmplot(model; agent_color = groupcolor, agent_marker = groupmarker, agent_size = 10)
+figure, _ = abmplot(model; agent_color = groupcolor, agent_marker = groupmarker, agent_size = 15)
 figure
 
 # Let's make an animation for the model evolution.
@@ -114,24 +123,14 @@ Agents.abmvideo(
     "schelling.mp4", model;
     agent_color = groupcolor,
     agent_marker = groupmarker,
-    agent_size = 5,
+    agent_size = 15,
     framerate = 4, frames = 20,
-    figure = (size = (300, 300),),
     title = "Schelling's segregation model"
 )
 
-# The helper function `display_mp4()` displays mp4 files in Jupyter notebooks
-
-using Base64
-
-function display_mp4(filename)
-    display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
-        Base64.base64encode(open(read, filename)),"""" type="video/mp4"></video>"""))
-end
-
 display_mp4("schelling.mp4")
 
-## Data analysis
+# ## Data analysis
 # The `run!()` function runs simulation and collects data in the `DataFrame` format. The `adata` (aggregated data) keyword selects fields we want to extract in the DataFrame.
 x(agent) = agent.pos[1]
 adata = [x, :mood, :group]
