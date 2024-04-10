@@ -10,6 +10,7 @@ using Agents
 using Random
 using Base64
 using CairoMakie
+CairoMakie.activate!(px_per_unit = 1.0)
 
 function display_mp4(filename)
     display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
@@ -44,8 +45,7 @@ agent_step!(agent, model) = move_agent!(agent, model, model.dt)
 Agents.abmvideo(
     "socialdist1.mp4", ball_model();
     title="Ball Model", agent_size=10,
-    frames=50, spf=2, framerate=25,
-    figure=(size=(400, 400),),
+    frames=50, dt=2, framerate=25,
 )
 
 display_mp4("socialdist1.mp4")
@@ -72,8 +72,7 @@ end
 Agents.abmvideo(
     "socialdist2.mp4", ball_model(;model_step!);
     title="Billiard-like", agent_size=10,
-    frames=100, spf=2, framerate=25,
-    figure=(size=(400, 400),),
+    frames=100, dt=2, framerate=25,
 )
 
 # ## Immovable agents
@@ -92,8 +91,7 @@ Agents.abmvideo(
     model3;
     title="Billiard-like with stationary agents",
     agent_size=10,
-    frames=50, spf=2, framerate=25,
-    figure=(size=(400, 400),),
+    frames=50, dt=2, framerate=25,
 )
 
 display_mp4("socialdist3.mp4")
@@ -217,10 +215,9 @@ abmvideo(
     title = "SIR model",
     frames = 80,
     agent_color = sir_colors,
-    agent_size = 5,
-    spf = 1,
+    agent_size = 10,
+    dt = 1,
     framerate = 20,
-    figure = (size = (300, 300),),
 )
 
 # ## Analyzing exponential spread
@@ -259,11 +256,10 @@ Agents.abmvideo(
     sir_model;
     title="Social Distancing",
     frames=200,
-    spf=2,
+    dt=2,
     agent_color=sir_colors,
-    agent_size = 5,
+    agent_size = 10,
     framerate=20,
-    figure = (size = (300, 300),),
 )
 
 display_mp4("socialdist5.mp4")

@@ -9,8 +9,9 @@ Here we add one more category of individuals: those who are infected, but do not
 using Agents, Random
 using Agents.DataFrames, Agents.Graphs
 using StatsBase: sample, Weights
-using CairoMakie
 using LinearAlgebra: diagind
+using CairoMakie
+CairoMakie.activate!(px_per_unit = 1.0)
 
 # ## Define the Model
 @agent struct PoorSoul(GraphAgent)
