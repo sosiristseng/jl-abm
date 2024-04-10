@@ -747,9 +747,9 @@ version = "1.0.0"
 
 [[deps.IteratorSampling]]
 deps = ["DataStructures", "Distributions", "Random", "ResumableFunctions", "StatsBase"]
-git-tree-sha1 = "d618d9603d1fb68c0b191b62f1e2fa12e6b9bf79"
+git-tree-sha1 = "866095cc7016a7f0b054bab94c15541f6f7825ca"
 uuid = "ef79a3d2-ae9f-5cd2-ab61-e13847810a6e"
-version = "0.2.9"
+version = "0.2.10"
 
 [[deps.JLD2]]
 deps = ["FileIO", "MacroTools", "Mmap", "OrderedCollections", "Pkg", "PrecompileTools", "Printf", "Reexport", "Requires", "TranscodingStreams", "UUIDs"]
