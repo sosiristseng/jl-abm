@@ -23,7 +23,7 @@ function display_mp4(filename)
 end
 
 # Rock, Paper, or Scissors (RPS) agent
-# The agent type could be accessed via `kindof(agent)`
+# The agent type could be obtained via `kindof(agent)`
 @multiagent struct RPS(GridAgent{2})
     @subagent struct Rock end
     @subagent struct Paper end
@@ -103,7 +103,7 @@ events = (attack_event, reproduction_event, movement_event)
 
 # Model factory function
 # `EventQueueABM` for an event-driven ABM
-function initialize_rps(; n = 100, nx = n, ny = n, seed = 2024)
+function initialize_rps(; n = 100, nx = n, ny = n, seed = 42)
     space = GridSpaceSingle((nx, ny))
     rng = Xoshiro(seed)
     model = EventQueueABM(RPS, events, space; rng, warn = false)
@@ -118,9 +118,7 @@ end
 # Create model
 model = initialize_rps()
 
-last(positions(model))
-
-# Event queue
+# Have a look at the event queue
 abmqueue(model)
 
 # The time in `EventQueueABM` is continuous, so we can pass real-valued time
