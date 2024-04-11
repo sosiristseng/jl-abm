@@ -14,9 +14,15 @@ The spatial rock-paper-scissors (RPS) is an ABM with the following rules:
 using Agents
 using Random
 using LinearAlgebra
+using Base64
 using Agents.DataFrames
 using CairoMakie
 CairoMakie.activate!(px_per_unit = 1.0)
+
+function display_mp4(filename)
+    display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
+        Base64.base64encode(open(read, filename)), """" type="video/mp4"></video>"""))
+end
 
 # Rock, Paper, or Scissors (RPS) agent
 # The agent type could be obtained via `kindof(agent)`
@@ -163,12 +169,10 @@ fig
 
 # ## Animation
 model = initialize_rps()
-abmvideo("docs/_static/rps_eventqueue.mp4", model;
+abmvideo("rps_eventqueue.mp4", model;
     dt = 0.5, frames = 300,
     title = "Rock Paper Scissors (event based)",
     plotkw...,
 )
 
-#===
-<video autoplay controls src="../_static/rps_eventqueue.mp4"></video>
-===#
+display_mp4("rps_eventqueue.mp4")

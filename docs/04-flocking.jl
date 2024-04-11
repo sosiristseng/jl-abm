@@ -13,8 +13,15 @@ Each agent follows three simple rules:
 using Agents
 using Random
 using LinearAlgebra
+using Base64
 using CairoMakie
 CairoMakie.activate!(px_per_unit = 1.0)
+
+
+function display_mp4(filename)
+    display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
+        Base64.base64encode(open(read, filename)), """" type="video/mp4"></video>"""))
+end
 
 #===
 This agents has also three properties inherited from ContinuousAgent
@@ -113,12 +120,10 @@ figure
 
 # Animation
 abmvideo(
-    "docs/_static/flocking.mp4", model;
+    "flocking.mp4", model;
     agent_marker = bird_marker,
     framerate = 20, frames = 150,
     title = "Flocking",
 )
 
-#===
-<video autoplay controls src="../_static/flocking.mp4"></video>
-===#
+display_mp4("flocking.mp4")
