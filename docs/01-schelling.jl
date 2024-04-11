@@ -112,7 +112,7 @@ figure
 # Using the `abmvideo()` function
 model = init_schelling()
 Agents.abmvideo(
-    "docs/_static/schelling.mp4", model;
+    "schelling.mp4", model;
     agent_color = groupcolor,
     agent_marker = groupmarker,
     agent_size = 15,
