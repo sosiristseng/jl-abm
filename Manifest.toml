@@ -37,9 +37,9 @@ weakdeps = ["StaticArrays"]
 
 [[deps.Agents]]
 deps = ["CSV", "CommonSolve", "DataFrames", "DataStructures", "Distributed", "Distributions", "Downloads", "Graphs", "IteratorSampling", "JLD2", "LazyArtifacts", "LightOSM", "LinearAlgebra", "MacroTools", "MixedStructTypes", "Pkg", "PrecompileTools", "ProgressMeter", "Random", "Rotations", "Scratch", "StaticArrays", "StatsBase"]
-git-tree-sha1 = "91c54b892577a8adf196b3b472278c741b76a053"
+git-tree-sha1 = "9907a5a67d4fcbc700fe90c0e71f0193f074a4ef"
 uuid = "46ada45e-f475-11e8-01d0-f70cc89e6671"
-version = "6.0.7"
+version = "6.0.8"
 
     [deps.Agents.extensions]
     AgentsArrow = "Arrow"
