@@ -11,6 +11,9 @@ end
 
 basedir = get(ENV, "DOCDIR", "docs") # Defaults to docs/
 cachedir = get(ENV, "NBCACHE", ".cache") # Defaults to .cache/
+mkpath(joinpath(cachedir, basedir, "_static"))
+
+# List of notebooks to be executed
 ipynbs = String[]
 litnbs = String[]
 
