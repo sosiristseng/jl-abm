@@ -24,14 +24,6 @@ First, we create a 2D space with a Chebyshev metric. This leads to *8 neighborin
 using Agents
 using Random
 
-# The helper function `display_mp4()` displays mp4 files in Jupyter notebooks
-using Base64
-function display_mp4(filename)
-    display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
-        Base64.base64encode(open(read, filename)),"""" type="video/mp4"></video>"""))
-end
-
-
 # Define the Agent type using the [`@agent`](https://juliadynamics.github.io/Agents.jl/stable/api/#Agents.@agent) macro.
 # The agents inherit all properties of `GridAgent{2}` sicne they live on a 2D grid. They also have two properties: `mood` (happy or not) and `group`.
 @agent struct SchellingAgent(GridAgent{2})
@@ -120,7 +112,7 @@ figure
 # Using the `abmvideo()` function
 model = init_schelling()
 Agents.abmvideo(
-    "schelling.mp4", model;
+    "docs/_static/schelling.mp4", model;
     agent_color = groupcolor,
     agent_marker = groupmarker,
     agent_size = 15,
@@ -128,7 +120,11 @@ Agents.abmvideo(
     title = "Schelling's segregation model"
 )
 
-display_mp4("schelling.mp4")
+#===
+`schelling.mp4`
+
+<video autoplay controls src="../_static/schelling.mp4"></video>
+===#
 
 # ## Data analysis
 # The `run!()` function runs simulation and collects data in the `DataFrame` format. The `adata` (aggregated data) keyword selects fields we want to extract in the DataFrame.

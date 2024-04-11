@@ -8,14 +8,8 @@ Source: [Agents.jl model zoo](https://juliadynamics.github.io/AgentsExampleZoo.j
 
 using Agents
 using Random
-using Base64
 using CairoMakie
 CairoMakie.activate!(px_per_unit = 1.0)
-
-function display_mp4(filename)
-    display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
-        Base64.base64encode(open(read, filename)), """" type="video/mp4"></video>"""))
-end
 
 # Let us first create a simple model where balls move around in a continuous space. We need to create agents that comply with `ContinuousSpace`, i.e. they have a pos and vel fields, both of which are tuples of float numbers.
 
@@ -43,12 +37,14 @@ agent_step!(agent, model) = move_agent!(agent, model, model.dt)
 
 # ## Visualization (I)
 Agents.abmvideo(
-    "socialdist1.mp4", ball_model();
+    "docs/_static/socialdist1.mp4", ball_model();
     title="Ball Model", agent_size=10,
     frames=50, dt=2, framerate=25,
 )
 
-display_mp4("socialdist1.mp4")
+#===
+<video autoplay controls src="../_static/socialdist1.mp4"></video>
+===#
 
 # As you can see the agents move in a straight line in a periodic space without interactions. Let's change that.
 
@@ -70,10 +66,14 @@ function model_step!(model)
 end
 
 Agents.abmvideo(
-    "socialdist2.mp4", ball_model(;model_step!);
+    "docs/_static/socialdist2.mp4", ball_model(;model_step!);
     title="Billiard-like", agent_size=10,
     frames=100, dt=2, framerate=25,
 )
+
+#===
+<video autoplay controls src="../_static/socialdist2.mp4"></video>
+===#
 
 # ## Immovable agents
 # For the following social distancing example, it will become crucial that some agents don't move, and can't be moved (i.e. they stay "isolated"). This is very easy to do with the elastic_collision! function, we only have to make some agents have infinite mass.
@@ -87,14 +87,16 @@ for i in 1:400
 end
 
 Agents.abmvideo(
-    "socialdist3.mp4",
+    "docs/_static/socialdist3.mp4",
     model3;
     title="Billiard-like with stationary agents",
     agent_size=10,
     frames=50, dt=2, framerate=25,
 )
 
-display_mp4("socialdist3.mp4")
+#===
+<video autoplay controls src="../_static/socialdist3.mp4"></video>
+===#
 
 # ## Virus spread (SIR model)
 # The agents can be infected with a disease and transfer the disease to other agents around them.
@@ -210,7 +212,7 @@ fig
 sir_model = sir_initiation()
 
 abmvideo(
-    "socialdist4.mp4",
+    "docs/_static/socialdist4.mp4",
     sir_model;
     title = "SIR model",
     frames = 80,
@@ -219,6 +221,10 @@ abmvideo(
     dt = 1,
     framerate = 20,
 )
+
+#===
+<video autoplay controls src="../_static/socialdist4.mp4"></video>
+===#
 
 # ## Analyzing exponential spread
 infected(x) = count(i == :I for i in x)
@@ -252,7 +258,7 @@ figure
 sir_model = sir_initiation(isolated=0.80)
 
 Agents.abmvideo(
-    "socialdist5.mp4",
+    "docs/_static/socialdist5.mp4",
     sir_model;
     title="Social Distancing",
     frames=200,
@@ -262,7 +268,9 @@ Agents.abmvideo(
     framerate=20,
 )
 
-display_mp4("socialdist5.mp4")
+#===
+<video autoplay controls src="../_static/socialdist5.mp4"></video>
+===#
 
 # Compare the number of infected agents for different parameters.
 r4 = 0.02

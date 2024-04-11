@@ -212,7 +212,7 @@ barplot!(ax, model.Ns; strokecolor = :black, strokewidth = 1, color)
 fig
 
 # Animation
-record(fig, "covid_evolution.mp4"; framerate = 5) do io
+record(fig, "docs/_static/covid_graph.mp4"; framerate = 5) do io
     for j in 1:30
         recordframe!(io)
         Agents.step!(abmobs, 1)
@@ -220,15 +220,9 @@ record(fig, "covid_evolution.mp4"; framerate = 5) do io
     recordframe!(io)
 end
 
-# Display video files in Jupyter Notebooks.
-using Base64
-
-function display_mp4(filename)
-    display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
-        Base64.base64encode(open(read, filename)),"""" type="video/mp4"></video>"""))
-end
-
-display_mp4("covid_evolution.mp4")
+#===
+<video autoplay controls src="../_static/covid_graph.mp4"></video>
+===#
 
 # ## Data Collection
 # Define helper functions
