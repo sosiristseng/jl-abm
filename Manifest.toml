@@ -950,9 +950,9 @@ version = "1.2.0"
 
 [[deps.MixedStructTypes]]
 deps = ["ExprTools", "MacroTools", "PrecompileTools", "SumTypes", "Suppressor"]
-git-tree-sha1 = "21080671223d35a2e8839e58057ef1c54c9d7d8c"
+git-tree-sha1 = "2324377d903dc9d8ed4d4a78e922bfef86372531"
 uuid = "3d69f371-6fa5-5add-b11c-3293622cad62"
-version = "0.2.19"
+version = "0.2.20"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
@@ -1176,9 +1176,9 @@ version = "1.4.3"
 
 [[deps.PrettyTables]]
 deps = ["Crayons", "LaTeXStrings", "Markdown", "PrecompileTools", "Printf", "Reexport", "StringManipulation", "Tables"]
-git-tree-sha1 = "88b895d13d53b5577fd53379d913b9ab9ac82660"
+git-tree-sha1 = "66b20dd35966a748321d3b2537c4584cf40387c7"
 uuid = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
-version = "2.3.1"
+version = "2.3.2"
 
 [[deps.Printf]]
 deps = ["Unicode"]
@@ -1191,9 +1191,9 @@ uuid = "92933f4c-e287-5a05-a399-4b506db050ca"
 version = "1.10.0"
 
 [[deps.PtrArrays]]
-git-tree-sha1 = "077664975d750757f30e739c870fbbdc01db7913"
+git-tree-sha1 = "f011fbb92c4d401059b2212c05c0601b70f8b759"
 uuid = "43287f4e-b6f4-7ad1-bb20-aadabca52c3d"
-version = "1.1.0"
+version = "1.2.0"
 
 [[deps.QOI]]
 deps = ["ColorTypes", "FileIO", "FixedPointNumbers"]
@@ -1279,9 +1279,9 @@ version = "0.4.2+0"
 
 [[deps.Rotations]]
 deps = ["LinearAlgebra", "Quaternions", "Random", "StaticArrays"]
-git-tree-sha1 = "2a0a5d8569f481ff8840e3b7c84bbf188db6a3fe"
+git-tree-sha1 = "5680a9276685d392c87407df00d57c9924d9f11e"
 uuid = "6038ab10-8711-5258-84ad-4b1120ba62dc"
-version = "1.7.0"
+version = "1.7.1"
 
     [deps.Rotations.extensions]
     RotationsRecipesBaseExt = "RecipesBase"
@@ -1312,9 +1312,9 @@ version = "1.2.1"
 
 [[deps.SentinelArrays]]
 deps = ["Dates", "Random"]
-git-tree-sha1 = "363c4e82b66be7b9f7c7c7da7478fdae07de44b9"
+git-tree-sha1 = "90b4f68892337554d31cdcdbe19e48989f26c7e6"
 uuid = "91c51154-3ec4-41a3-a24f-3f23e20d615c"
-version = "1.4.2"
+version = "1.4.3"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
@@ -1490,9 +1490,9 @@ version = "7.2.1+1"
 
 [[deps.SumTypes]]
 deps = ["MacroTools", "PrecompileTools"]
-git-tree-sha1 = "73dbf987e33aeae99a488348780693b758367dd6"
+git-tree-sha1 = "900f20cc431405e75a0d260b78a5f69ceb63c8a5"
 uuid = "8e1ec7a9-0e02-4297-b0fe-6433085c89f2"
-version = "0.5.6"
+version = "0.5.8"
 
 [[deps.Suppressor]]
 deps = ["Logging"]
