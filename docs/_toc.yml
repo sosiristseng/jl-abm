@@ -9,3 +9,4 @@ chapters:
   - file: 03-social-distancing
   - file: 04-flocking
   - file: 05-event-multiagent
+  - file: 06-osmabm
