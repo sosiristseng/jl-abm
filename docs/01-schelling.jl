@@ -23,14 +23,39 @@ First, we create a 2D space with a Chebyshev metric. This leads to *8 neighborin
 
 using Agents
 using Random
+using CairoMakie
+CairoMakie.activate!(px_per_unit = 1.0)
 
-# The helper function `display_mp4()` displays mp4 files in Jupyter notebooks
-using Base64
-function display_mp4(filename)
-    display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
-        Base64.base64encode(open(read, filename)),"""" type="video/mp4"></video>"""))
+# The helper function is adapted from `Agents.abmvideo` and correctly displays animations in Jupyter notebooks
+function abmvio(model;
+    dt = 1, framerate = 30, frames = 300, title = "", showstep = true,
+    figure = (size = (600, 600),), axis = NamedTuple(),
+    recordkwargs = (compression = 23, format ="mp4"), kwargs...
+)
+    # title and steps
+    abmtime_obs = Observable(abmtime(model))
+    if title ≠ "" && showstep
+        t = lift(x -> title*", time = "*string(x), abmtime_obs)
+    elseif showstep
+        t = lift(x -> "time = "*string(x), abmtime_obs)
+    else
+        t = title
+    end
+
+    axis = (title = t, titlealign = :left, axis...)
+    # First frame
+    fig, ax, abmobs = abmplot(model; add_controls = false, warn_deprecation = false, figure, axis, kwargs...)
+    resize_to_layout!(fig)
+    # Animation
+    Makie.Record(fig; framerate, recordkwargs...) do io
+        for j in 1:frames-1
+            recordframe!(io)
+            Agents.step!(abmobs, dt)
+            abmtime_obs[] = abmtime(model)
+        end
+        recordframe!(io)
+    end
 end
-
 
 # Define the Agent type using the [`@agent`](https://juliadynamics.github.io/Agents.jl/stable/api/#Agents.@agent) macro.
 # The agents inherit all properties of `GridAgent{2}` sicne they live on a 2D grid. They also have two properties: `mood` (happy or not) and `group`.
@@ -103,32 +128,24 @@ abmtime(model)
 
 # ## Visualization
 # The `abmplot()` function visulizes the simulation result using Makie.jl.
-# Here we use the Cairo backend
-using CairoMakie
-CairoMakie.activate!(px_per_unit = 1.0)
-
 # Some helper functions to identify agent groups.
 groupcolor(a) = a.group == 1 ? :blue : :orange
 groupmarker(a) = a.group == 1 ? :circle : :rect
 
 # Plot the initial conditions of the model
 model = init_schelling()
-figure, _ = abmplot(model; agent_color = groupcolor, agent_marker = groupmarker, agent_size = 15)
+figure, _ = abmplot(model; agent_color = groupcolor, agent_marker = groupmarker, agent_size = 15, axis=(;title = "Schelling's segregation model"))
 figure
 
 # Let's make an animation for the model evolution.
-# Using the `abmvideo()` function
 model = init_schelling()
-Agents.abmvideo(
-    "schelling.mp4", model;
+vio = abmvio(model;
     agent_color = groupcolor,
     agent_marker = groupmarker,
     agent_size = 15,
     framerate = 4, frames = 20,
     title = "Schelling's segregation model"
 )
-
-display_mp4("schelling.mp4")
 
 # ## Data analysis
 # The `run!()` function runs simulation and collects data in the `DataFrame` format. The `adata` (aggregated data) keyword selects fields we want to extract in the DataFrame.

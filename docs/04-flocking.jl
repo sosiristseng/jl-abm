@@ -9,7 +9,6 @@ Each agent follows three simple rules:
 + fly towards the average position of neighbors
 + fly in the average direction of neighbors
 ===#
-
 using Agents
 using Random
 using LinearAlgebra
@@ -17,10 +16,35 @@ using Base64
 using CairoMakie
 CairoMakie.activate!(px_per_unit = 1.0)
 
+# The helper function is adapted from `Agents.abmvideo` and correctly displays animations in Jupyter notebooks
+function abmvio(model;
+    dt = 1, framerate = 30, frames = 300, title = "", showstep = true,
+    figure = (size = (600, 600),), axis = NamedTuple(),
+    recordkwargs = (compression = 23, format ="mp4"), kwargs...
+)
+    # title and steps
+    abmtime_obs = Observable(abmtime(model))
+    if title ≠ "" && showstep
+        t = lift(x -> title*", time = "*string(x), abmtime_obs)
+    elseif showstep
+        t = lift(x -> "time = "*string(x), abmtime_obs)
+    else
+        t = title
+    end
 
-function display_mp4(filename)
-    display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
-        Base64.base64encode(open(read, filename)), """" type="video/mp4"></video>"""))
+    axis = (title = t, titlealign = :left, axis...)
+    # First frame
+    fig, ax, abmobs = abmplot(model; add_controls = false, warn_deprecation = false, figure, axis, kwargs...)
+    resize_to_layout!(fig)
+    # Animation
+    Makie.Record(fig; framerate, recordkwargs...) do io
+        for j in 1:frames-1
+            recordframe!(io)
+            Agents.step!(abmobs, dt)
+            abmtime_obs[] = abmtime(model)
+        end
+        recordframe!(io)
+    end
 end
 
 #===
@@ -107,7 +131,7 @@ end
 
 # ## Visualization
 # Helper functions
-const bird_polygon = Makie.Polygon(Point2f[(-1, -1), (2, 0), (-1, 1)])
+const bird_polygon = Makie.Polygon([Point2f(-1, -1), Point2f(2, 0), Point2f(-1, 1)])
 function bird_marker(b::Bird)
     φ = atan(b.vel[2], b.vel[1]) ##+ π/2 + π
     rotate_polygon(bird_polygon, φ)
@@ -115,15 +139,13 @@ end
 
 #---
 model = initialize_model()
-figure, = abmplot(model; agent_marker = bird_marker)
+figure, _ = abmplot(model; agent_marker = '✈',)
 figure
 
 # Animation
-abmvideo(
-    "flocking.mp4", model;
-    agent_marker = bird_marker,
+abmvio(
+     model;
+    agent_marker = '✈',
     framerate = 20, frames = 150,
     title = "Flocking",
 )
-
-display_mp4("flocking.mp4")

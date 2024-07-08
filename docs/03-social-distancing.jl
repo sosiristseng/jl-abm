@@ -12,13 +12,38 @@ using Base64
 using CairoMakie
 CairoMakie.activate!(px_per_unit = 1.0)
 
-function display_mp4(filename)
-    display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
-        Base64.base64encode(open(read, filename)), """" type="video/mp4"></video>"""))
+# The helper function is adapted from `Agents.abmvideo` and correctly displays animations in Jupyter notebooks
+function abmvio(model;
+    dt = 1, framerate = 30, frames = 300, title = "", showstep = true,
+    figure = (size = (600, 600),), axis = NamedTuple(),
+    recordkwargs = (compression = 23, format ="mp4"), kwargs...
+)
+    # title and steps
+    abmtime_obs = Observable(abmtime(model))
+    if title ≠ "" && showstep
+        t = lift(x -> title*", time = "*string(x), abmtime_obs)
+    elseif showstep
+        t = lift(x -> "time = "*string(x), abmtime_obs)
+    else
+        t = title
+    end
+
+    axis = (title = t, titlealign = :left, axis...)
+    # First frame
+    fig, ax, abmobs = abmplot(model; add_controls = false, warn_deprecation = false, figure, axis, kwargs...)
+    resize_to_layout!(fig)
+    # Animation
+    Makie.Record(fig; framerate, recordkwargs...) do io
+        for j in 1:frames-1
+            recordframe!(io)
+            Agents.step!(abmobs, dt)
+            abmtime_obs[] = abmtime(model)
+        end
+        recordframe!(io)
+    end
 end
 
 # Let us first create a simple model where balls move around in a continuous space. We need to create agents that comply with `ContinuousSpace`, i.e. they have a pos and vel fields, both of which are tuples of float numbers.
-
 @agent struct SocialAgent(ContinuousAgent{2, Float64})
     mass::Float64
 end
@@ -42,13 +67,11 @@ end
 agent_step!(agent, model) = move_agent!(agent, model, model.dt)
 
 # ## Visualization (I)
-Agents.abmvideo(
-    "socialdist1.mp4", ball_model();
+abmvio(
+    ball_model();
     title="Ball Model", agent_size=10,
     frames=50, dt=2, framerate=25,
 )
-
-display_mp4("socialdist1.mp4")
 
 # As you can see the agents move in a straight line in a periodic space without interactions. Let's change that.
 
@@ -69,8 +92,8 @@ function model_step!(model)
     end
 end
 
-Agents.abmvideo(
-    "socialdist2.mp4", ball_model(;model_step!);
+abmvio(
+    ball_model(;model_step!);
     title="Billiard-like", agent_size=10,
     frames=100, dt=2, framerate=25,
 )
@@ -86,15 +109,12 @@ for i in 1:400
     agent.vel = (0.0, 0.0)
 end
 
-Agents.abmvideo(
-    "socialdist3.mp4",
+abmvio(
     model3;
     title="Billiard-like with stationary agents",
     agent_size=10,
     frames=50, dt=2, framerate=25,
 )
-
-display_mp4("socialdist3.mp4")
 
 # ## Virus spread (SIR model)
 # The agents can be infected with a disease and transfer the disease to other agents around them.
@@ -209,8 +229,7 @@ fig
 # Animation time
 sir_model = sir_initiation()
 
-abmvideo(
-    "socialdist4.mp4",
+abmvio(
     sir_model;
     title = "SIR model",
     frames = 80,
@@ -251,8 +270,7 @@ figure
 # The simplest way to model social distancing is to make some agents not move. Here we make 80% of the agents not move.
 sir_model = sir_initiation(isolated=0.80)
 
-Agents.abmvideo(
-    "socialdist5.mp4",
+abmvio(
     sir_model;
     title="Social Distancing",
     frames=200,
@@ -261,8 +279,6 @@ Agents.abmvideo(
     agent_size = 10,
     framerate=20,
 )
-
-display_mp4("socialdist5.mp4")
 
 # Compare the number of infected agents for different parameters.
 r4 = 0.02

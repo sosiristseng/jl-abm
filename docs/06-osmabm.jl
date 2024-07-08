@@ -10,14 +10,38 @@ using CairoMakie
 using OSMMakie
 CairoMakie.activate!(px_per_unit = 1.0)
 
-# The helper function `display_mp4()` displays mp4 files in Jupyter notebooks
-using Base64
-function display_mp4(filename)
-    display("text/html", string("""<video autoplay controls><source src="data:video/x-m4v;base64,""",
-        Base64.base64encode(open(read, filename)),"""" type="video/mp4"></video>"""))
+# The helper function is adapted from `Agents.abmvideo` and correctly displays animations in Jupyter notebooks
+function abmvio(model;
+    dt = 1, framerate = 30, frames = 300, title = "", showstep = true,
+    figure = (size = (600, 600),), axis = NamedTuple(),
+    recordkwargs = (compression = 23, format ="mp4"), kwargs...
+)
+    # title and steps
+    abmtime_obs = Observable(abmtime(model))
+    if title ≠ "" && showstep
+        t = lift(x -> title*", time = "*string(x), abmtime_obs)
+    elseif showstep
+        t = lift(x -> "time = "*string(x), abmtime_obs)
+    else
+        t = title
+    end
+
+    axis = (title = t, titlealign = :left, axis...)
+    # First frame
+    fig, ax, abmobs = abmplot(model; add_controls = false, warn_deprecation = false, figure, axis, kwargs...)
+    resize_to_layout!(fig)
+    # Animation
+    Makie.Record(fig; framerate, recordkwargs...) do io
+        for j in 1:frames-1
+            recordframe!(io)
+            Agents.step!(abmobs, dt)
+            abmtime_obs[] = abmtime(model)
+        end
+        recordframe!(io)
+    end
 end
 
-# Agents
+# Agents for zombies and healthy humans
 @agent struct Zombie(OSMAgent)
     infected::Bool
     speed::Float64
@@ -79,9 +103,7 @@ zombie_color(agent) = agent.infected ? :green : :black
 zombie_size(agent) = agent.infected ? 10 : 8
 zombies = initialise_zombies()
 
-abmvideo("outbreak.mp4", zombies;
+abmvio(zombies;
     title = "Zombie outbreak", framerate = 15, frames = 200,
     agent_color = zombie_color, agent_size = zombie_size
 )
-
-display_mp4("outbreak.mp4")
