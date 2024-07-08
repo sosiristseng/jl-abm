@@ -22,7 +22,7 @@ function abmvio(model;
     figure = (size = (600, 600),), axis = NamedTuple(),
     recordkwargs = (compression = 23, format ="mp4"), kwargs...
 )
-    # title and steps
+    ## title and steps
     abmtime_obs = Observable(abmtime(model))
     if title ≠ "" && showstep
         t = lift(x -> title*", time = "*string(x), abmtime_obs)
@@ -33,10 +33,10 @@ function abmvio(model;
     end
 
     axis = (title = t, titlealign = :left, axis...)
-    # First frame
+    ## First frame
     fig, ax, abmobs = abmplot(model; add_controls = false, warn_deprecation = false, figure, axis, kwargs...)
     resize_to_layout!(fig)
-    # Animation
+    ## Animation
     Makie.Record(fig; framerate, recordkwargs...) do io
         for j in 1:frames-1
             recordframe!(io)
