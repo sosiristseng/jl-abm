@@ -18,6 +18,7 @@ env:
   CACHE_NUM: '1'
   JULIA_CONDAPKG_BACKEND: 'Null'
   JULIA_CI: 'true'
+  JULIA_CPU_TARGET: 'generic;sandybridge,-xsaveopt,clone_all;haswell,-rdrnd,base(1);znver3,clone_all'
   NBCACHE: '.cache'
 
 jobs:
