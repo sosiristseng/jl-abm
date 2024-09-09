@@ -58,9 +58,9 @@ version = "1.1.1"
 
 [[deps.Agents]]
 deps = ["CSV", "CommonSolve", "DataFrames", "DataStructures", "Distributed", "Distributions", "Downloads", "DynamicSumTypes", "Graphs", "JLD2", "LazyArtifacts", "LightOSM", "LinearAlgebra", "MacroTools", "PrecompileTools", "ProgressMeter", "Random", "Rotations", "Scratch", "StaticArrays", "StatsBase", "StreamSampling"]
-git-tree-sha1 = "4af870e2810016ad26d0d2cea635496cc585c3f4"
+git-tree-sha1 = "362ea51fe99499d44357e85a386a74e4ae75cb02"
 uuid = "46ada45e-f475-11e8-01d0-f70cc89e6671"
-version = "6.1.4"
+version = "6.1.5"
 
     [deps.Agents.extensions]
     AgentsArrow = "Arrow"
@@ -260,14 +260,14 @@ uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
 version = "2.4.2"
 
 [[deps.ConstructionBase]]
-deps = ["LinearAlgebra"]
-git-tree-sha1 = "a33b7ced222c6165f624a3f2b55945fac5a598d9"
+git-tree-sha1 = "76219f1ed5771adbb096743bff43fb5fdd4c1157"
 uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
-version = "1.5.7"
-weakdeps = ["IntervalSets", "StaticArrays"]
+version = "1.5.8"
+weakdeps = ["IntervalSets", "LinearAlgebra", "StaticArrays"]
 
     [deps.ConstructionBase.extensions]
     ConstructionBaseIntervalSetsExt = "IntervalSets"
+    ConstructionBaseLinearAlgebraExt = "LinearAlgebra"
     ConstructionBaseStaticArraysExt = "StaticArrays"
 
 [[deps.Contour]]
@@ -308,9 +308,9 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
 [[deps.DelaunayTriangulation]]
 deps = ["AdaptivePredicates", "EnumX", "ExactPredicates", "Random"]
-git-tree-sha1 = "88a2c530da3dd3bf4282267925d2c16c8efcd3fc"
+git-tree-sha1 = "9903123ab7fc5e55053292aff04ff5d7aff92633"
 uuid = "927a84f5-c5f4-47a5-9785-b46e178433df"
-version = "1.1.4"
+version = "1.3.0"
 
 [[deps.Distances]]
 deps = ["LinearAlgebra", "Statistics", "StatsAPI"]
@@ -356,9 +356,9 @@ version = "1.6.0"
 
 [[deps.DynamicSumTypes]]
 deps = ["ExprTools", "MacroTools"]
-git-tree-sha1 = "7f681c884ff4af808fcb229ef752507c49e6d9b8"
+git-tree-sha1 = "8836d8846919670cec877e4002d972c23e9dde29"
 uuid = "5fcdbb90-de43-509e-b9a6-c4d43f29cf26"
-version = "3.7.2"
+version = "3.7.5"
 
 [[deps.EarCut_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -500,11 +500,16 @@ version = "1.0.14+0"
 deps = ["Random"]
 uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
 
+[[deps.GeoFormatTypes]]
+git-tree-sha1 = "59107c179a586f0fe667024c5eb7033e81333271"
+uuid = "68eda718-8dee-11e9-39e7-89f7f65f511f"
+version = "0.4.2"
+
 [[deps.GeoInterface]]
-deps = ["Extents"]
-git-tree-sha1 = "9fff8990361d5127b770e3454488360443019bb3"
+deps = ["Extents", "GeoFormatTypes"]
+git-tree-sha1 = "5921fc0704e40c024571eca551800c699f86ceb4"
 uuid = "cf35fbd7-0cd7-5166-be24-54bfbe79505f"
-version = "1.3.5"
+version = "1.3.6"
 
 [[deps.GeometryBasics]]
 deps = ["EarCut_jll", "Extents", "GeoInterface", "IterTools", "LinearAlgebra", "StaticArrays", "StructArrays", "Tables"]
@@ -658,18 +663,20 @@ weakdeps = ["Unitful"]
 
 [[deps.IntervalArithmetic]]
 deps = ["CRlibm_jll", "MacroTools", "RoundingEmulator"]
-git-tree-sha1 = "433b0bb201cd76cb087b017e49244f10394ebe9c"
+git-tree-sha1 = "01fa84a20be8c7c867edf3b9ef33ac15f4089c1a"
 uuid = "d1acc4aa-44c8-5952-acd4-ba5d80a2a253"
-version = "0.22.14"
+version = "0.22.15"
 
     [deps.IntervalArithmetic.extensions]
     IntervalArithmeticDiffRulesExt = "DiffRules"
     IntervalArithmeticForwardDiffExt = "ForwardDiff"
     IntervalArithmeticRecipesBaseExt = "RecipesBase"
+    IntervalArithmeticsIntervalSetsExt = "IntervalSets"
 
     [deps.IntervalArithmetic.weakdeps]
     DiffRules = "b552c78f-8df3-52c6-915a-8e097449b14b"
     ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+    IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
     RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 
 [[deps.IntervalSets]]
@@ -1058,9 +1065,9 @@ version = "1.4.3"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "a028ee3cb5641cccc4c24e90c36b0a4f7707bdf5"
+git-tree-sha1 = "1b35263570443fdd9e76c76b7062116e2f374ab8"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.0.14+0"
+version = "3.0.15+0"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
