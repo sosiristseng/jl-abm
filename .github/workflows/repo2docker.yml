@@ -1,0 +1,34 @@
+name: Repo2docker
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-binder
+  cancel-in-progress: true
+
+jobs:
+  binder:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: write
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    - name: Login to ghcr.io
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner	}}
+        password: ${{ github.token }}
+    - name: Update binder docker image with repo2docker
+      uses: jupyterhub/repo2docker-action@master
+      with:
+        DOCKER_REGISTRY: ghcr.io
+        IMAGE_NAME: ${{ github.repository }}
+        BINDER_CACHE: true
+        PUBLIC_REGISTRY_CHECK: true
+        LATEST_TAG_OFF: true
+        ADDITIONAL_TAG: binder
